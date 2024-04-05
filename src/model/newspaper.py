@@ -54,4 +54,4 @@ class Newspaper(object):
 
 # Model ? -> JSON
 
-# error handling ? - what if an issue doesn't exists ?
+# error handling ? - what if an issue doesn't exist ?

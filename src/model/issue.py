@@ -10,6 +10,6 @@ class Issue(object):
         self.editor = None
 
     def set_editor(self, editor):
-        # TODO: Implement me!
-        pass
+        self.editor = editor
+
 
