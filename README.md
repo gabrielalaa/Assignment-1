@@ -50,7 +50,7 @@ Write Test cases to thoroughly test your API –
 manual testing with Postman is good, but not enough.
 Come up with an automated testing script, which simulates the daily operations 
 of the paper agency. For example, add newspapers, employees and clients, 
-create issues and subscriptions, make deliveries and collect payments.
+create issues and subscriptions.
 
 > [!NOTE]
 > In this exercise, we focus on the API implementation only. 
@@ -75,7 +75,6 @@ A few examples are provided in the [`src`](./src) and [`test`](./test) folders t
 | `/newspaper/<paper_id>/issue/<issue_id>`         | `GET`       | Get information of a newspaper issue                                                                                                                    |
 | `/newspaper/<paper_id>/issue/<issue_id>/release` | `POST`      | Release an issue                                                                                                                                        |
 | `/newspaper/<paper_id>/issue/<issue_id>/editor`  | `POST`      | Specify an editor for an issue. (Transmit the editor ID as parameter)                                                                                   |
-| `/newspaper/<paper_id>/issue/<issue_id>/release` | `POST`      | Release an issue                                                                                                                                        |
 | `/newspaper/<paper_id>/issue/<issue_id>/deliver` | `POST`      | "Send" an issue to a subscriber. This means there should be a record of the subscriber receiving                                                        |
 | `/newspaper/<paper_id>/stats`                    | `GET`       | Return information about the specific newspaper (number of subscribers, monthly and annual revenue)                                                     |
 | `/editor`                                        | `GET`       | List all editors of the agency.                                                                                                                         |
