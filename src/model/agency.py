@@ -20,7 +20,6 @@ class Agency(object):
 
     def add_newspaper(self, new_paper: Newspaper):
         # Assert that ID does not exist  yet (or create a new one)
-        # I was not sure if I have to use assert(); or the meaning of this was just to 'ensure'
         if any(new_paper.paper_id == paper.paper_id for paper in self.newspapers):
             raise ValueError(f'A newspaper with ID {new_paper.paper_id} already exists!')
         self.newspapers.append(new_paper)
