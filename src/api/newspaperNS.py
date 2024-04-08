@@ -4,6 +4,8 @@ from flask_restx import Namespace, reqparse, Resource, fields
 from ..model.agency import Agency
 from ..model.newspaper import Newspaper
 
+# import random
+
 newspaper_ns = Namespace("newspaper", description="Newspaper related operations")
 
 paper_model = newspaper_ns.model('NewspaperModel', {
@@ -27,6 +29,10 @@ class NewspaperAPI(Resource):
     @newspaper_ns.marshal_with(paper_model, envelope='newspaper')
     def post(self):
         # TODO: this is not smart! you should find a better way to generate a unique ID!
+        # paper_id = random.randint(10, 99)
+        # OPTIONAL CHECK if ID already exists
+        # while any(newspaper.paper_id == paper_id for newspaper in Agency.get_instance().newspapers):
+        #   paper_id = random.randint(10, 99)
         paper_id = len(Agency.get_instance().newspapers) + 20
 
         # create a new paper object and add it
@@ -53,12 +59,33 @@ class NewspaperID(Resource):
         search_result = Agency.get_instance().get_newspaper(paper_id)
         return search_result
 
+    # Use 'reqparse' from flask_restx for parsing incoming request data
+    # Define it
+    parser = reqparse.RequestParser()
+    # Add expected arguments
+    parser.add_argument('name', type=str, required=False, help="Name of the newspaper")
+    parser.add_argument('frequency', type=int, required=False, help="Frequency of the newspaper in days")
+    parser.add_argument('price', type=int, required=False, help="Monthly price of the newspaper")
+
     @newspaper_ns.doc(parser=paper_model, description="Update a new newspaper")
     @newspaper_ns.expect(paper_model, validate=True)
     @newspaper_ns.marshal_with(paper_model, envelope='newspaper')
     def post(self, paper_id):
-        # TODO: update newspaper
-        pass
+        arguments = self.parser.parse_args()
+
+        search_result = Agency.get_instance().get_newspaper(paper_id)
+        if not search_result:
+            return f'No newspaper found with ID {paper_id}'
+
+        # Update the newspaper if arguments exist
+        if arguments['name'] is not None:
+            search_result.name = arguments['name']
+        if arguments['frequency'] is not None:
+            search_result.frequency = arguments['frequency']
+        if arguments['price'] is not None:
+            search_result.price = arguments['price']
+
+        return search_result
 
     @newspaper_ns.doc(description="Delete a new newspaper")
     def delete(self, paper_id):
