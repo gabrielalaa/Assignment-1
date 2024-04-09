@@ -60,17 +60,23 @@ class NewspaperID(Resource):
     # Add expected arguments
     parser.add_argument('name', type=str, required=False, help="Name of the newspaper")
     parser.add_argument('frequency', type=int, required=False, help="Frequency of the newspaper in days")
-    parser.add_argument('price', type=int, required=False, help="Monthly price of the newspaper")
+    parser.add_argument('price', type=float, required=False, help="Monthly price of the newspaper")
 
     @newspaper_ns.doc(description="Get a new newspaper")
     @newspaper_ns.marshal_with(paper_model, envelope='newspaper')
     def get(self, paper_id):
         search_result = Agency.get_instance().get_newspaper(paper_id)
+        # Manage the situation when the newspaper is not found
+        if search_result is None:
+            # 404 is used for 'Not found'
+            abort(404, message=f"No newspaper with ID {paper_id} found")
         return search_result
 
-    @newspaper_ns.doc(parser=paper_model, description="Update a new newspaper")
+    # @newspaper_ns.doc(parser=paper_model, description="Update a new newspaper")
+    @newspaper_ns.doc(description="Update a new newspaper")
     # @newspaper_ns.expect(paper_model, validate=True)
     @newspaper_ns.expect(parser, validate=False)  # Expect fields from parser without strict validation
+    # marshal_with may get a conflict with jsonify !!!
     @newspaper_ns.marshal_with(paper_model, envelope='newspaper')
     def post(self, paper_id):
         arguments = self.parser.parse_args()
@@ -91,17 +97,10 @@ class NewspaperID(Resource):
         if arguments['price'] is not None:
             search_result.price = arguments['price']
             updated = True
-        # ANOTHER METHOD
-        # for arg in ['name', 'frequency', 'price']:
-        #             if args[arg] is not None:
-        #                 setattr(newspaper, arg, args[arg])
-        #                 updated = True
-        #
-        #         if not updated:
-        #             abort(400, message='No updates have been made')
 
         if not updated:
-            abort(404, message=f"No updates have been made")
+            abort(400, message=f"No updates have been made")
+            # return jsonify(f"No updates have been made for the newspaper with ID {paper_id}")
 
         return search_result
 
