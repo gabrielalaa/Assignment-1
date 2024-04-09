@@ -1,10 +1,12 @@
 from flask import jsonify
-from flask_restx import Namespace, reqparse, Resource, fields
+# Import abort to handel errors
+from flask_restx import Namespace, reqparse, Resource, fields, abort
 
 from ..model.agency import Agency
 from ..model.newspaper import Newspaper
 
-# import random
+# Use a simple generator for ID's
+import random
 
 newspaper_ns = Namespace("newspaper", description="Newspaper related operations")
 
@@ -28,12 +30,12 @@ class NewspaperAPI(Resource):
     @newspaper_ns.expect(paper_model, validate=True)
     @newspaper_ns.marshal_with(paper_model, envelope='newspaper')
     def post(self):
-        # TODO: this is not smart! you should find a better way to generate a unique ID!
-        # paper_id = random.randint(10, 99)
-        # OPTIONAL CHECK if ID already exists
-        # while any(newspaper.paper_id == paper_id for newspaper in Agency.get_instance().newspapers):
-        #   paper_id = random.randint(10, 99)
-        paper_id = len(Agency.get_instance().newspapers) + 20
+        # Create a unique ID
+        paper_id = random.randint(10, 99)
+        # Check if ID already exists
+        while any(newspaper.paper_id == paper_id for newspaper in Agency.get_instance().newspapers):
+            paper_id = random.randint(10, 99)
+        # paper_id = len(Agency.get_instance().newspapers) + 20
 
         # create a new paper object and add it
         new_paper = Newspaper(paper_id=paper_id,
@@ -52,14 +54,13 @@ class NewspaperAPI(Resource):
 
 @newspaper_ns.route('/<int:paper_id>')
 class NewspaperID(Resource):
-    # # For PARTIAL UPDATE:
-    # # Use 'reqparse' from flask_restx for parsing incoming request data
-    # # Define it
-    # parser = reqparse.RequestParser()
-    # # Add expected arguments
-    # parser.add_argument('name', type=str, required=False, help="Name of the newspaper")
-    # parser.add_argument('frequency', type=int, required=False, help="Frequency of the newspaper in days")
-    # parser.add_argument('price', type=int, required=False, help="Monthly price of the newspaper")
+    # Use 'reqparse' from flask_restx for parsing incoming request data
+    # Define it
+    parser = reqparse.RequestParser()
+    # Add expected arguments
+    parser.add_argument('name', type=str, required=False, help="Name of the newspaper")
+    parser.add_argument('frequency', type=int, required=False, help="Frequency of the newspaper in days")
+    parser.add_argument('price', type=int, required=False, help="Monthly price of the newspaper")
 
     @newspaper_ns.doc(description="Get a new newspaper")
     @newspaper_ns.marshal_with(paper_model, envelope='newspaper')
@@ -68,48 +69,41 @@ class NewspaperID(Resource):
         return search_result
 
     @newspaper_ns.doc(parser=paper_model, description="Update a new newspaper")
-    @newspaper_ns.expect(paper_model, validate=True)
-    # @newspaper_ns.expect(parser, validate=False)  # Expect fields from parser without strict validation
+    # @newspaper_ns.expect(paper_model, validate=True)
+    @newspaper_ns.expect(parser, validate=False)  # Expect fields from parser without strict validation
     @newspaper_ns.marshal_with(paper_model, envelope='newspaper')
     def post(self, paper_id):
-        # METHOD 1
-        # arguments = self.parser.parse_args()
-        #
-        # search_result = Agency.get_instance().get_newspaper(paper_id)
-        # if not search_result:
-        #     return f'No newspaper found with ID {paper_id}'
-        #
-        # # Create a flag to track if any update was made
-        # update_ = False
-        # # Update the newspaper if arguments exist
-        # if arguments['name'] is not None:
-        #     search_result.name = arguments['name']
-        #     update_ = True
-        # if arguments['frequency'] is not None:
-        #     search_result.frequency = arguments['frequency']
-        #     update_ = True
-        # if arguments['price'] is not None:
-        #     search_result.price = arguments['price']
-        #     update_ = True
-        #
-        # if not update_:
-        #     return f'No updates have been made'
-        #
-        # return search_result
+        arguments = self.parser.parse_args()
 
-        # METHOD 2
-        # search_result = Agency.get_instance().get_newspaper(paper_id)
-        # if not search_result:
-        #     return f'No newspaper found with ID {paper_id}'
+        search_result = Agency.get_instance().get_newspaper(paper_id)
+        if not search_result:
+            abort(404, message=f"No newspaper with ID {paper_id} found")
+
+        # Create a flag to track if any update was made
+        updated = False
+        # Update the newspaper if arguments exist
+        if arguments['name'] is not None:
+            search_result.name = arguments['name']
+            updated = True
+        if arguments['frequency'] is not None:
+            search_result.frequency = arguments['frequency']
+            updated = True
+        if arguments['price'] is not None:
+            search_result.price = arguments['price']
+            updated = True
+        # ANOTHER METHOD
+        # for arg in ['name', 'frequency', 'price']:
+        #             if args[arg] is not None:
+        #                 setattr(newspaper, arg, args[arg])
+        #                 updated = True
         #
-        # data = newspaper_ns.payload
-        #
-        # # Assume all filed are provided for full update
-        # search_result.name = data['name']
-        # search_result.frequency = data['frequency']
-        # search_result.price = data['price']
-        # return search_result
-        pass
+        #         if not updated:
+        #             abort(400, message='No updates have been made')
+
+        if not updated:
+            abort(404, message=f"No updates have been made")
+
+        return search_result
 
     @newspaper_ns.doc(description="Delete a new newspaper")
     def delete(self, paper_id):
