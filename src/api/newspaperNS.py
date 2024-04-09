@@ -52,6 +52,14 @@ class NewspaperAPI(Resource):
 
 @newspaper_ns.route('/<int:paper_id>')
 class NewspaperID(Resource):
+    # # For PARTIAL UPDATE:
+    # # Use 'reqparse' from flask_restx for parsing incoming request data
+    # # Define it
+    # parser = reqparse.RequestParser()
+    # # Add expected arguments
+    # parser.add_argument('name', type=str, required=False, help="Name of the newspaper")
+    # parser.add_argument('frequency', type=int, required=False, help="Frequency of the newspaper in days")
+    # parser.add_argument('price', type=int, required=False, help="Monthly price of the newspaper")
 
     @newspaper_ns.doc(description="Get a new newspaper")
     @newspaper_ns.marshal_with(paper_model, envelope='newspaper')
@@ -59,33 +67,49 @@ class NewspaperID(Resource):
         search_result = Agency.get_instance().get_newspaper(paper_id)
         return search_result
 
-    # Use 'reqparse' from flask_restx for parsing incoming request data
-    # Define it
-    parser = reqparse.RequestParser()
-    # Add expected arguments
-    parser.add_argument('name', type=str, required=False, help="Name of the newspaper")
-    parser.add_argument('frequency', type=int, required=False, help="Frequency of the newspaper in days")
-    parser.add_argument('price', type=int, required=False, help="Monthly price of the newspaper")
-
     @newspaper_ns.doc(parser=paper_model, description="Update a new newspaper")
     @newspaper_ns.expect(paper_model, validate=True)
+    # @newspaper_ns.expect(parser, validate=False)  # Expect fields from parser without strict validation
     @newspaper_ns.marshal_with(paper_model, envelope='newspaper')
     def post(self, paper_id):
-        arguments = self.parser.parse_args()
+        # METHOD 1
+        # arguments = self.parser.parse_args()
+        #
+        # search_result = Agency.get_instance().get_newspaper(paper_id)
+        # if not search_result:
+        #     return f'No newspaper found with ID {paper_id}'
+        #
+        # # Create a flag to track if any update was made
+        # update_ = False
+        # # Update the newspaper if arguments exist
+        # if arguments['name'] is not None:
+        #     search_result.name = arguments['name']
+        #     update_ = True
+        # if arguments['frequency'] is not None:
+        #     search_result.frequency = arguments['frequency']
+        #     update_ = True
+        # if arguments['price'] is not None:
+        #     search_result.price = arguments['price']
+        #     update_ = True
+        #
+        # if not update_:
+        #     return f'No updates have been made'
+        #
+        # return search_result
 
-        search_result = Agency.get_instance().get_newspaper(paper_id)
-        if not search_result:
-            return f'No newspaper found with ID {paper_id}'
-
-        # Update the newspaper if arguments exist
-        if arguments['name'] is not None:
-            search_result.name = arguments['name']
-        if arguments['frequency'] is not None:
-            search_result.frequency = arguments['frequency']
-        if arguments['price'] is not None:
-            search_result.price = arguments['price']
-
-        return search_result
+        # METHOD 2
+        # search_result = Agency.get_instance().get_newspaper(paper_id)
+        # if not search_result:
+        #     return f'No newspaper found with ID {paper_id}'
+        #
+        # data = newspaper_ns.payload
+        #
+        # # Assume all filed are provided for full update
+        # search_result.name = data['name']
+        # search_result.frequency = data['frequency']
+        # search_result.price = data['price']
+        # return search_result
+        pass
 
     @newspaper_ns.doc(description="Delete a new newspaper")
     def delete(self, paper_id):
