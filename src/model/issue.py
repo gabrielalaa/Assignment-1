@@ -9,6 +9,7 @@ class Issue(object):
         self.released: bool = released
         self.editor = None
 
+    # TODO:
     def set_editor(self, editor):
         self.editor = editor
 
