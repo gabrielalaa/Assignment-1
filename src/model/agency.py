@@ -59,7 +59,7 @@ class Agency(object):
             return None
 
     def generate_unique_issue_id(self, newspaper):
-        new_issue_id = random.randint(100, 199)
+        new_issue_id = random.randint(1000, 9999)
         while any(issue.issue_id == new_issue_id for issue in newspaper.issues):
             new_issue_id = random.randint(100, 199)
         return new_issue_id
