@@ -48,10 +48,14 @@ class Agency(object):
                 if issue.issue_id == issue_id:
                     return issue
             return None
-        else:
-            raise ValueError(f"A newspaper with ID {paper_id} doesn't exist!")
 
-    # TODO: check if paper_id: int and issue; error handling
+    def get_issues(self, paper_id: int) -> Optional[List[Issue]]:
+        newspaper = self.get_newspaper(paper_id)
+        if newspaper is not None:
+            return newspaper.issues
+        else:
+            return None
+
     def add_issue_to_newspaper(self, paper_id: int, issue: Issue):
         newspaper = self.get_newspaper(paper_id)
         if newspaper is not None:
@@ -70,7 +74,6 @@ class Agency(object):
 
     def specify_editor(self):
         pass
-
 
     # # TODO: check if paper_id: int and issue; error handling
     # def remove_issue_from_newspaper(self, paper_id: Union[int, str], issue_id: int):
