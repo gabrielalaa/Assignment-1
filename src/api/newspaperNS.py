@@ -4,6 +4,7 @@ from flask_restx import Namespace, reqparse, Resource, fields, abort
 
 from ..model.agency import Agency
 from ..model.newspaper import Newspaper
+from ..model.issue import Issue
 
 # Use a simple generator for ID's
 import random
@@ -22,6 +23,18 @@ paper_model = newspaper_ns.model('NewspaperModel', {
                           help='The monthly price of the newspaper (e.g. 12.3)')
 })
 
+issue_model = newspaper_ns.model('IssueModel', {
+    'issue_id': fields.Integer(required=False,
+                               help='The unique identifier of an issue'),
+    'release_date': fields.String(required=True,
+                                  help='The release date of the issue'),
+    'number_of_pages': fields.Integer(required=True,
+                                      help='The number of  pages the issue'),
+    'released': fields.Boolean(required=False,
+                               default=False,
+                               help='The status of an issue')
+})
+
 
 @newspaper_ns.route('/')
 class NewspaperAPI(Resource):
@@ -31,7 +44,7 @@ class NewspaperAPI(Resource):
     @newspaper_ns.marshal_with(paper_model, envelope='newspaper')
     def post(self):
         # Create a unique ID
-        paper_id = random.randint(10, 99)
+        paper_id = random.randint(1, 99)
         # Check if ID already exists
         while any(newspaper.paper_id == paper_id for newspaper in Agency.get_instance().newspapers):
             paper_id = random.randint(10, 99)
