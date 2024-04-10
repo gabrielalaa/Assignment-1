@@ -133,14 +133,28 @@ class NewspaperID(Resource):
 
 
 # Issues Endpoints
-@newspaper_ns.route("/int:paper_id>/issues")
+@newspaper_ns.route('/<int:paper_id>/issue')
 class NewspaperIssues(Resource):
     @newspaper_ns.doc(description="List all issues of a specific newspaper")
     @newspaper_ns.marshal_with(issue_model, envelope="issue")
     def get(self, paper_id):
         search_result = Agency.get_instance().get_issues(paper_id)
         if search_result is None:
-            abort(400, message=f"No newspaper with ID {paper_id} found")
+            abort(404, message=f"No newspaper with ID {paper_id} found")
         return search_result
+
+    @newspaper_ns.doc(issue_model, description="Create a new issue")
+    @newspaper_ns.expect(issue_model, validate=True)
+    @newspaper_ns.marshal_with(issue_model, envelope="issue")
+    def post(self, paper_id):
+        # Extract the issue data from payload
+        issue_data = newspaper_ns.payload
+        try:
+            # Add the new issue, to the specified newspaper
+            new_issue = Agency.get_instance().add_issue_to_newspaper(paper_id, issue_data)
+            # Return the new issue
+            return new_issue
+        except ValueError as err:
+            newspaper_ns.abort(404, message=f"No newspaper with ID {paper_id} found")
 
 
