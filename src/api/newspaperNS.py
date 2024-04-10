@@ -158,3 +158,13 @@ class NewspaperIssues(Resource):
             newspaper_ns.abort(404, message=f"No newspaper with ID {paper_id} found")
 
 
+@newspaper_ns.route('/<int:paper_id>/issue/<int:issue_id>')
+class NewspaperIssueID(Resource):
+    @newspaper_ns.doc(description="Get information of a newspaper issue")
+    @newspaper_ns.marshal_with(issue_model, envelope="issue")
+    def get(self, paper_id, issue_id):
+        search_result = Agency.get_instance().get_issue(paper_id, issue_id)
+        if search_result is None:
+            abort(404, message=f"No issue with ID {issue_id} found")
+        else:
+            return search_result
