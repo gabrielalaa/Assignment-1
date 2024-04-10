@@ -47,7 +47,7 @@ class NewspaperAPI(Resource):
     @newspaper_ns.marshal_with(paper_model, envelope='newspaper')
     def post(self):
         # Create a unique and simple ID
-        paper_id = random.randint(1, 99)
+        paper_id = random.randint(1, 999)
         # Check if ID already exists
         while any(newspaper.paper_id == paper_id for newspaper in Agency.get_instance().newspapers):
             paper_id = random.randint(10, 99)
