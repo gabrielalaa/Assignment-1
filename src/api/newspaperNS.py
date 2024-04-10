@@ -23,6 +23,7 @@ paper_model = newspaper_ns.model('NewspaperModel', {
                           help='The monthly price of the newspaper (e.g. 12.3)')
 })
 
+# EDITOR ?
 issue_model = newspaper_ns.model('IssueModel', {
     'issue_id': fields.Integer(required=False,
                                help='The unique identifier of an issue'),
@@ -43,12 +44,15 @@ class NewspaperAPI(Resource):
     @newspaper_ns.expect(paper_model, validate=True)
     @newspaper_ns.marshal_with(paper_model, envelope='newspaper')
     def post(self):
-        # Create a unique ID
+        # Create a unique and simple ID
         paper_id = random.randint(1, 99)
         # Check if ID already exists
         while any(newspaper.paper_id == paper_id for newspaper in Agency.get_instance().newspapers):
             paper_id = random.randint(10, 99)
-        # paper_id = len(Agency.get_instance().newspapers) + 20
+
+        # I was thinking to use uuid module in order to get real unique ID, but I think random is much better in such
+        # a project when I care more about the functionality
+        # paper_id = int(str(uuid.uuid4().int)[:8])
 
         # create a new paper object and add it
         new_paper = Newspaper(paper_id=paper_id,
@@ -124,3 +128,17 @@ class NewspaperID(Resource):
             return jsonify(f"Newspaper with ID {paper_id} was not found")
         Agency.get_instance().remove_newspaper(targeted_paper)
         return jsonify(f"Newspaper with ID {paper_id} was removed")
+
+
+# Issues Endpoints
+@newspaper_ns.route("/int:paper_id>/issues")
+class NewspaperIssues(Resource):
+    @newspaper_ns.doc(description="List all issues of a specific newspaper")
+    @newspaper_ns.marshal_with(issue_model, envelope="issue")
+    def get(self, paper_id):
+        search_result = Agency.get_instance().get_issues(paper_id)
+        if search_result is None:
+            abort(400, message=f"No newspaper with ID {paper_id} found")
+        return search_result
+
+
