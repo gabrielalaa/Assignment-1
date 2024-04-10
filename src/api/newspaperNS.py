@@ -23,7 +23,9 @@ paper_model = newspaper_ns.model('NewspaperModel', {
                           help='The monthly price of the newspaper (e.g. 12.3)')
 })
 
+# TODO:
 # EDITOR ?
+# 'release_date': fields.DateTime(required=True, dt_format='iso8601', description='The release date of the issue'),
 issue_model = newspaper_ns.model('IssueModel', {
     'issue_id': fields.Integer(required=False,
                                help='The unique identifier of an issue'),
