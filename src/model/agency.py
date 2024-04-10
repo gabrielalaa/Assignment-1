@@ -5,6 +5,8 @@ from .newspaper import Newspaper
 from .subscriber import Subscriber
 from .editor import Editor
 
+import random
+
 
 class Agency(object):
     singleton_instance = None
@@ -56,12 +58,32 @@ class Agency(object):
         else:
             return None
 
-    def add_issue_to_newspaper(self, paper_id: int, issue: Issue):
+    def generate_unique_issue_id(self, newspaper):
+        new_issue_id = random.randint(100, 199)
+        while any(issue.issue_id == new_issue_id for issue in newspaper.issues):
+            new_issue_id = random.randint(100, 199)
+        return new_issue_id
+
+    def add_issue_to_newspaper(self, paper_id: int, issue_data):
         newspaper = self.get_newspaper(paper_id)
-        if newspaper is not None:
-            newspaper.issues.append(issue)
-        else:
+        if newspaper is None:
             raise ValueError(f"A newspaper with ID {paper_id} doesn't exist!")
+
+        # Remove issue_id from the data to avoid conflict !!!
+        issue_data.pop("issue_id", None)
+
+        # Generate a unique ID for the issue
+        unique_issue_id = self.generate_unique_issue_id(newspaper)
+
+        # Specify the status of the issue
+        issue_data.setdefault("released", False)
+
+        # Create a new Issue object using the ID
+        new_issue = Issue(issue_id=unique_issue_id, **issue_data)
+
+        # Add the issue to the newspaper
+        newspaper.issues.append(new_issue)
+        return new_issue
 
     def release_issue(self, paper_id: int, issue_id: int):
         newspaper = self.get_newspaper(paper_id)
