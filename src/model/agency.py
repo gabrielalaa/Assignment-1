@@ -1,5 +1,6 @@
 from typing import List, Union, Optional
 
+from . import subscriber
 from .issue import Issue
 from .newspaper import Newspaper
 from .subscriber import Subscriber
@@ -26,7 +27,7 @@ class Agency(object):
         return Agency.singleton_instance
 
     def add_newspaper(self, new_paper: Newspaper):
-        # Assert that ID does not exist  yet (or create a new one)
+        # Assert that ID does not exist
         if any(new_paper.paper_id == paper.paper_id for paper in self.newspapers):
             raise ValueError(f"A newspaper with ID {new_paper.paper_id} already exists!")
         self.newspapers.append(new_paper)
@@ -121,7 +122,7 @@ class Agency(object):
 
     # METHODS for editor
     def add_editor(self, new_editor: Editor):
-        # Assert that ID does not exist  yet (or create a new one)
+        # Assert that ID does not exist  yet
         if any(new_editor.editor_id == editor.editor_id for editor in self.editors):
             raise ValueError(f"An editor with ID {new_editor.editor_id} already exists!")
         self.editors.append(new_editor)
@@ -138,27 +139,28 @@ class Agency(object):
     def remove_editor(self, editor: Editor):
         self.editors.remove(editor)
 
+    #  TODO:
     #     def editor_issues(self , editor_id: Union[int, str]) -> list[Issue] | None:
     #         for editor in self.editors:
     #             if editor.editor_id == editor_id:
     #                 return editor.issues
     #         return None
 
+    # METHODS for subscriber
+    def add_subscriber(self, new_subscriber: Subscriber):
+        # Assert that ID does not exist  yet
+        if any(new_subscriber.subscriber_id == sub.subscriber_id for sub in self.subscribers):
+            raise ValueError(f"A subscriber with ID {new_subscriber.subscriber_id} already exists!")
+        self.subscribers.append(new_subscriber)
 
+    def get_subscriber(self, subscriber_id: Union[int, str]) -> Optional[Subscriber]:
+        for sub in self.subscribers:
+            if sub.subscriber_id == subscriber_id:
+                return sub
+        return None
 
-    #         return None
-    #     def add_subscriber(self, new_subscriber: Subscriber):
-    #         # TODO: assert that ID does not exist  yet (or create a new one)
-    #         self.subscribers.append(new_subscriber)
-    #
-    #     def get_subscriber(self, subscriber_id: Union[int, str]) -> Optional[Subscriber]:
-    #         for subscriber in self.subscribers:
-    #             if subscriber.subscriber_id == subscriber_id:
-    #                 return subscriber
-    #         return None
-    #
-    #     def all_subscriber(self) -> List[Subscriber]:
-    #         return self.subscribers
-    #
-    #     def remove_subscriber(self, subscriber: Subscriber):
-    #         self.subscribers.remove(subscriber)
+    def all_subscribers(self) -> List[Subscriber]:
+        return self.subscribers
+
+    def remove_subscriber(self, sub: Subscriber):
+        self.subscribers.remove(sub)
