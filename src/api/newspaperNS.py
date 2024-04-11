@@ -28,8 +28,10 @@ issue_model = newspaper_ns.model('IssueModel', {
     'issue_id': fields.Integer(required=False,
                                help='The unique identifier of an issue'),
     # The release_date uses ISO 8601 format, which is an international standard for date and time representations
+    # To me, it makes sense to have a default release date as None at first
     'release_date': fields.DateTime(dt_format='iso8601',
                                     required=False,
+                                    default=None,
                                     help='The release date of the issue'),
     'number_of_pages': fields.Integer(required=True,
                                       help='The number of  pages the issue'),
