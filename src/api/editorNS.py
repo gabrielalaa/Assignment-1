@@ -49,8 +49,8 @@ class EditorAPI(Resource):
 @editor_ns.route('/<int:editor_id>')
 class EditorID(Resource):
     parser = reqparse.RequestParser()
-    parser.add_argument('name', type=str, required=False, help="the name of the editor")
-    parser.add_argument('address', type=str, required=False, help="the publication frequency of the newspaper in day")
+    parser.add_argument('editor_name', type=str, required=False, help="The name of the editor")
+    parser.add_argument('address', type=str, required=False, help="The address of the editor")
 
     @editor_ns.doc(description="Get a new editor")
     @editor_ns.marshal_with(editor_model, envelope='editor')
@@ -73,8 +73,8 @@ class EditorID(Resource):
             abort(404, message=f"No editor with the ID {editor_id} was found")
 
         updated = False
-        if arguments['name'] is not None:
-            search_result.name = arguments['name']
+        if arguments['editor_name'] is not None:
+            search_result.name = arguments['editor_name']
             updated = True
         if arguments['address'] is not None:
             search_result.address = arguments['address']
