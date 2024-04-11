@@ -28,7 +28,7 @@ class Agency(object):
     def add_newspaper(self, new_paper: Newspaper):
         # Assert that ID does not exist  yet (or create a new one)
         if any(new_paper.paper_id == paper.paper_id for paper in self.newspapers):
-            raise ValueError(f'A newspaper with ID {new_paper.paper_id} already exists!')
+            raise ValueError(f"A newspaper with ID {new_paper.paper_id} already exists!")
         self.newspapers.append(new_paper)
 
     def get_newspaper(self, paper_id: Union[int, str]) -> Optional[Newspaper]:
@@ -94,8 +94,8 @@ class Agency(object):
             # Check if the issue exists and if it was not yet been released
             if issue is not None and not issue.released:
                 issue.released = True
-                # If I release an issue, set the current datetime
-                issue.release_date = datetime.datetime.now()
+                # If I release an issue, set the current datetime in a format of YYYY-MM-DD
+                issue.release_date = datetime.datetime.now().strftime("%Y-%m-%d")
                 return issue
             elif issue.released:
                 raise ValueError(f"An issue with ID {issue_id} has already been released!")
@@ -119,26 +119,33 @@ class Agency(object):
     # def update_issue_in_newspaper(self, paper_id: Union[int, str], issue_id: int):
     #     pass
 
-    #    def add_editor(self, new_editor: Editor):
-    #         # TODO: assert that ID does not exist  yet (or create a new one)
-    #         self.editors.append(new_editor)
-    #
-    #     def get_editor(self, editor_id: Union[int, str]) -> Optional[Editor]:
-    #         for editor in self.editors:
-    #             if editor.editor_id == editor_id:
-    #                 return editor
-    #         return None
-    #
-    #     def all_editor(self) -> List[Editor]:
-    #         return self.editors
-    #
-    #     def remove_editor(self, editor: Editor):
-    #         self.editors.remove(editor)
-    #
+    # METHODS for editor
+    def add_editor(self, new_editor: Editor):
+        # Assert that ID does not exist  yet (or create a new one)
+        if any(new_editor.editor_id == editor.editor_id for editor in self.editors):
+            raise ValueError(f"An editor with ID {new_editor.editor_id} already exists!")
+        self.editors.append(new_editor)
+
+    def get_editor(self, editor_id: Union[int, str]) -> Optional[Editor]:
+        for editor in self.editors:
+            if editor.editor_id == editor_id:
+                return editor
+        return None
+
+    def all_editor(self) -> List[Editor]:
+        return self.editors
+
+    def remove_editor(self, editor: Editor):
+        self.editors.remove(editor)
+
     #     def editor_issues(self , editor_id: Union[int, str]) -> list[Issue] | None:
     #         for editor in self.editors:
     #             if editor.editor_id == editor_id:
     #                 return editor.issues
+    #         return None
+
+
+
     #         return None
     #     def add_subscriber(self, new_subscriber: Subscriber):
     #         # TODO: assert that ID does not exist  yet (or create a new one)
