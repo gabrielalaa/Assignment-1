@@ -34,7 +34,7 @@ class EditorAPI(Resource):
 
         # create a new editor object and add it
         new_editor = Editor(editor_id=editor_id,
-                            editor_name=editor_ns.payload['name'],
+                            editor_name=editor_ns.payload['editor_name'],
                             address=editor_ns.payload['address'])
         Agency.get_instance().add_editor(new_editor)
 
