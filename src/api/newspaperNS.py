@@ -1,3 +1,5 @@
+import parser
+
 from flask import jsonify
 # Import abort to handel errors
 from flask_restx import Namespace, reqparse, Resource, fields, abort
@@ -23,7 +25,6 @@ paper_model = newspaper_ns.model('NewspaperModel', {
                           help='The monthly price of the newspaper (e.g. 12.3)')
 })
 
-# TODO: EDITOR ?
 issue_model = newspaper_ns.model('IssueModel', {
     'issue_id': fields.Integer(required=False,
                                help='The unique identifier of an issue'),
@@ -33,7 +34,9 @@ issue_model = newspaper_ns.model('IssueModel', {
                                       help='The number of pages in the issue'),
     'released': fields.Boolean(required=False,
                                default=False,
-                               help='The status of an issue')
+                               help='The status of an issue'),
+    'editor_id': fields.Integer(required=False,
+                                help='The unique identifier of an editor')
 })
 
 
@@ -178,7 +181,7 @@ class NewspaperIssueRelease(Resource):
             release_action = Agency.get_instance().release_issue(paper_id, issue_id)
             return release_action
         except ValueError as err:
-            # Because the error may be from different reasons, try to manage all the situations:
+            # Since the error can be due to various reasons, try to handle all situations:
             message = str(err)
             # The newspaper doesn't exist
             if "newspaper" in message:
@@ -187,7 +190,42 @@ class NewspaperIssueRelease(Resource):
             elif "doesn't exist" in message:
                 abort(404, message=message)
             else:
+                # The issue has already been released
                 abort(400, message=message)
+
+
+@newspaper_ns.route('/<int:paper_id>/issue/<int:issue_id>/editor')
+class NewspaperIssueEditor(Resource):
+    # Use reqparse because I only need one argument
+    parser = reqparse.RequestParser()
+    parser.add_argument('editor_id', type=int, required=True, help='The unique identifier of an editor')
+
+    @newspaper_ns.doc(description="Specify an editor for an issue")
+    @newspaper_ns.expect(parser, validate=False)  # Expect fields from parser without strict validation
+    @newspaper_ns.marshal_with(issue_model, envelope='issue')
+    def post(self, paper_id, issue_id):
+        # Get and set the editor_id
+        arguments = self.parser.parse_args()
+        editor_id = arguments['editor_id']
+
+        try:
+            update_issue = Agency.get_instance().specify_editor(paper_id, issue_id, editor_id)
+            return update_issue
+        except ValueError as err:
+            # Since the error can be due to various reasons, try to handle all situations:
+            message = str(err)
+            # The newspaper doesn't exist
+            if "newspaper" in message:
+                abort(404, message=message)
+            # The issue doesn't exist
+            elif "issue" in message:
+                abort(404, message=message)
+            else:
+                # The editor doesn't exist
+                abort(404, message=message)
+
+
+
 
     # TODO:
     #  post - specify an editor (transmit the editor ID as a parameter)
