@@ -12,8 +12,8 @@ class Editor(object):
         self.editor_name = editor_name
         self.address = address
         # Use a list of newspaper IDs instead of instances ?
-        self.newspaper_ids: List[Newspaper] = []
-        # self.issues: List[Issue] = []
+        self.newspapers: List[Newspaper] = []
+        self.issues: List[Issue] = []
 
 
 # # Create another class to handle the editors and their methods
