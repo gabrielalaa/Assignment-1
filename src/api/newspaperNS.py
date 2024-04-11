@@ -166,6 +166,22 @@ class NewspaperIssueID(Resource):
         else:
             return search_result
 
+
+@newspaper_ns.route('/<int:paper_id>/issue/<int:issue_id>/release')
+class NewspaperIssueRelease(Resource):
+    @newspaper_ns.doc(description="Release an issue")
+    # @newspaper_ns.expect(issue_model, validate=True)
+    @newspaper_ns.marshal_with(issue_model, envelope="issue")
+    def post(self, paper_id, issue_id):
+        # This time I cannot check if the action is None, therefore try this:
+        try:
+            release_action = Agency.get_instance().release_issue(paper_id, issue_id)
+            return release_action
+        except ValueError:
+            newspaper_ns.abort(400, message="Couldn't release the issue!")
+
+
+
     # TODO: post - release an issue
     #  post - specify an editor (transmit the editor ID as a parameter)
     #  post - deliver/'send' to a subscriber
