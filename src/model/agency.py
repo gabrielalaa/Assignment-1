@@ -89,16 +89,21 @@ class Agency(object):
     def release_issue(self, paper_id: int, issue_id: int):
         newspaper = self.get_newspaper(paper_id)
         if newspaper is None:
-            raise ValueError(f"A newspaper with ID {paper_id} doesn't exist!")
+            raise ValueError(f"A newspaper with ID {paper_id} does not exist!")
+
         issue = self.get_issue(paper_id, issue_id)
-        # Check if the issue exists and if it was not yet been released
-        if issue is not None and not issue.released:
-            issue.released = True
-            return issue
-        elif issue.released:
-            raise ValueError(f"An issue with ID {issue_id} has already been released!")
-        else:
+        # Check if the issue exists
+        if issue is None:
             raise ValueError(f"An issue with ID {issue_id} doesn't exist!")
+
+        # Check if the issue has been released
+        if issue.released:
+            raise ValueError(f"An issue with ID {issue_id} has already been released!")
+
+        # Release it
+        issue.released = True
+        return issue
+
 
     def specify_editor(self):
         pass
