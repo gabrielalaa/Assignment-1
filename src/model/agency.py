@@ -104,9 +104,39 @@ class Agency(object):
         issue.released = True
         return issue
 
+    # TODO ?
+    # def add_newspaper_to_editor(self, paper_id: int, editor_id: int):
+    #     newspaper = self.get_newspaper(paper_id)
+    #     if newspaper is None:
+    #         raise ValueError(f"A newspaper with ID {paper_id} doesn't exist!")
+    #
+    #     editor = self.get_editor(editor_id)
+    #     if editor is None:
+    #         raise ValueError(f"An editor with ID {editor_id} doesn't exist!")
+    #
+    #     editor.newspapers.append(newspaper)
 
-    def specify_editor(self):
-        pass
+    def specify_editor(self, paper_id, issue_id, editor_id):
+        newspaper = self.get_newspaper(paper_id)
+        if newspaper is None:
+            raise ValueError(f"A newspaper with ID {paper_id} doesn't exist!")
+
+        issue = self.get_issue(paper_id, issue_id)
+        if issue is None:
+            raise ValueError(f"A issue with ID {issue_id} doesn't exist!")
+
+        editor = self.get_editor(editor_id)
+        if editor is None:
+            raise ValueError(f"An editor with ID {editor_id} doesn't exist!")
+
+        # From my point of view, re-assignment should be possible
+        # Set the editor
+        issue.set_editor(editor_id)
+        # Add the issue
+        if issue not in editor.issues:
+            editor.issues.append(issue)
+
+        return issue
 
     # # TODO: check if paper_id: int and issue; error handling
     # def remove_issue_from_newspaper(self, paper_id: Union[int, str], issue_id: int):
