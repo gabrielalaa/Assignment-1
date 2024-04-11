@@ -76,8 +76,9 @@ class Agency(object):
         # Generate a unique ID for the issue
         unique_issue_id = self.generate_unique_issue_id(newspaper)
 
-        # Specify the status of the issue
+        # Specify the status of the issue and the release date
         issue_data.setdefault("released", False)
+        issue_data.setdefault("release_date", None)
 
         # Create a new Issue object using the ID
         new_issue = Issue(issue_id=unique_issue_id, **issue_data)
@@ -90,13 +91,18 @@ class Agency(object):
         newspaper = self.get_newspaper(paper_id)
         if newspaper is not None:
             issue = self.get_issue(paper_id, issue_id)
-            if issue is not None:
+            # Check if the issue exists and if it was not yet been released
+            if issue is not None and not issue.released:
                 issue.released = True
                 # If I release an issue, set the current datetime
                 issue.release_date = datetime.datetime.now()
                 return issue
+            elif issue.released:
+                raise ValueError(f"An issue with ID {issue_id} has already been released!")
             else:
-                raise ValueError(f"A newspaper with ID {paper_id} doesn't exist!")
+                raise ValueError(f"An issue with ID {issue_id} doesn't exist!")
+        else:
+            raise ValueError(f"A newspaper with ID {paper_id} doesn't exist!")
 
     def specify_editor(self):
         pass
