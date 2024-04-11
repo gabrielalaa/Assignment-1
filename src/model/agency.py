@@ -7,7 +7,6 @@ from .subscriber import Subscriber
 from .editor import Editor
 
 import random
-import datetime
 
 
 class Agency(object):
@@ -63,7 +62,7 @@ class Agency(object):
     def generate_unique_issue_id(self, newspaper):
         new_issue_id = random.randint(1000, 9999)
         while any(issue.issue_id == new_issue_id for issue in newspaper.issues):
-            new_issue_id = random.randint(100, 199)
+            new_issue_id = random.randint(1000, 9999)
         return new_issue_id
 
     def add_issue_to_newspaper(self, paper_id: int, issue_data):
@@ -77,9 +76,8 @@ class Agency(object):
         # Generate a unique ID for the issue
         unique_issue_id = self.generate_unique_issue_id(newspaper)
 
-        # Specify the status of the issue and the release date
+        # Specify the status of the issue
         issue_data.setdefault("released", False)
-        issue_data.setdefault("release_date", None)
 
         # Create a new Issue object using the ID
         new_issue = Issue(issue_id=unique_issue_id, **issue_data)
