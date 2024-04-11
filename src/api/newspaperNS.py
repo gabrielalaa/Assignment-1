@@ -173,16 +173,23 @@ class NewspaperIssueRelease(Resource):
     # @newspaper_ns.expect(issue_model, validate=True)
     @newspaper_ns.marshal_with(issue_model, envelope="issue")
     def post(self, paper_id, issue_id):
-        # This time I cannot check if the action is None, therefore try this:
+        # This time I cannot check if the action is None, therefore try:
         try:
             release_action = Agency.get_instance().release_issue(paper_id, issue_id)
             return release_action
-        except ValueError:
-            newspaper_ns.abort(400, message="Couldn't release the issue!")
+        except ValueError as err:
+            # Because the error may be from different reasons, try to manage all the situations:
+            message = str(err)
+            # The newspaper doesn't exist
+            if "newspaper" in message:
+                abort(404, message=message)
+            # The issue doesn't exist
+            elif "doesn't exist" in message:
+                abort(404, message=message)
+            else:
+                abort(400, message=message)
 
-
-
-    # TODO: post - release an issue
+    # TODO:
     #  post - specify an editor (transmit the editor ID as a parameter)
     #  post - deliver/'send' to a subscriber
 
