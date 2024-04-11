@@ -1,11 +1,5 @@
-# Import datetime for release date
-from datetime import datetime
-
-
 class Issue(object):
-
-    # I considered adding an ID because it is easy to be used for methods such as remove or update
-    def __init__(self, issue_id: int, release_date: datetime, number_of_pages: int, released: bool = False):
+    def __init__(self, issue_id: int, release_date: str, number_of_pages: int, released: bool = False):
         self.issue_id = issue_id
         self.release_date = release_date
         self.number_of_pages = number_of_pages
