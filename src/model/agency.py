@@ -6,6 +6,7 @@ from .subscriber import Subscriber
 from .editor import Editor
 
 import random
+import datetime
 
 
 class Agency(object):
@@ -91,6 +92,9 @@ class Agency(object):
             issue = self.get_issue(paper_id, issue_id)
             if issue is not None:
                 issue.released = True
+                # If I release an issue, set the current datetime
+                issue.release_date = datetime.datetime.now()
+                return issue
             else:
                 raise ValueError(f"A newspaper with ID {paper_id} doesn't exist!")
 
