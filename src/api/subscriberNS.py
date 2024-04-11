@@ -34,8 +34,8 @@ class SubscriberAPI(Resource):
 
         # create a new subscriber object and add it
         new_subscriber = Subscriber(subscriber_id=subscriber_id,
-                                    name=subscriber_ns.payload['name'],
-                                    address=subscriber_ns.payload['address'])
+                                    name=subscriber_ns.payload['subscriber_name'],
+                                    address=subscriber_ns.payload['subscriber_address'])
         Agency.get_instance().add_subscriber(new_subscriber)
 
         # return the new subscriber
@@ -43,7 +43,7 @@ class SubscriberAPI(Resource):
 
     @subscriber_ns.marshal_list_with(subscriber_model, envelope='subscriber')
     def get(self):
-        return Agency.get_instance().all_subscriber()
+        return Agency.get_instance().all_subscribers()
 
 
 @subscriber_ns.route('/<int:subscriber_id>')
@@ -63,25 +63,26 @@ class SubscriberID(Resource):
         return search_result
 
     @subscriber_ns.doc(description="Update a new subscriber")
-    @subscriber_ns.expect(parser, validate=True)
+    @subscriber_ns.expect(parser, validate=False) # Expect fields from parser without strict validation
     @subscriber_ns.marshal_with(subscriber_model, envelope='subscriber')
     def post(self, subscriber_id):
         arguments = self.parser.parse_args()
 
         search_result = Agency.get_instance().get_subscriber(subscriber_id)
         if not search_result:
-            abort(404, message=f"No subscriber with the ID {subscriber_id} was found")
+            abort(404, message=f"No subscriber with the ID {subscriber_id} found")
 
+        # Create a flag to track if any update was made
         updated = False
         if arguments['subscriber_name'] is not None:
-            search_result.name = arguments['subscriber_name']
+            search_result.subscriber_name = arguments['subscriber_name']
             updated = True
         if arguments['subscriber_address'] is not None:
-            search_result.address = arguments['subscriber_address']
+            search_result.subscriber_address = arguments['subscriber_address']
             updated = True
 
         if not updated:
-            abort(404, message=f"No updates have been made")
+            abort(400, message=f"No updates have been made")
 
         return search_result
 
