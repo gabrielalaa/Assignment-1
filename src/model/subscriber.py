@@ -5,9 +5,9 @@ from .newspaper import Newspaper
 
 class Subscriber:
     def __init__(self, subscriber_id: int, name: str, address: str):
-        self.id = subscriber_id
-        self.name = name
-        self.address = address
+        self.subscriber_id = subscriber_id
+        self.subscriber_name = name
+        self.subscriber_address = address
         # TODO: The list of newspapers that they are subscribed to
         self.subscriptions: List[Newspaper] = []
 
