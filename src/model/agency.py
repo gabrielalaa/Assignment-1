@@ -72,6 +72,8 @@ class Agency(object):
 
         # Remove issue_id from the data to avoid conflict !!!
         issue_data.pop("issue_id", None)
+        # Exclude editor_id when creating a new issue!
+        issue_data.pop("editor_id", None)
 
         # Generate a unique ID for the issue
         unique_issue_id = self.generate_unique_issue_id(newspaper)
