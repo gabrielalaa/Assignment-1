@@ -27,14 +27,10 @@ paper_model = newspaper_ns.model('NewspaperModel', {
 issue_model = newspaper_ns.model('IssueModel', {
     'issue_id': fields.Integer(required=False,
                                help='The unique identifier of an issue'),
-    # The release_date uses ISO 8601 format, which is an international standard for date and time representations
-    # To me, it makes sense to have a default release date as None at first
-    'release_date': fields.DateTime(dt_format='iso8601',
-                                    required=False,
-                                    default=None,
-                                    help='The release date of the issue'),
+    'release_date': fields.String(required=True,
+                                  help='The release date of the issue'),
     'number_of_pages': fields.Integer(required=True,
-                                      help='The number of  pages the issue'),
+                                      help='The number of pages in the issue'),
     'released': fields.Boolean(required=False,
                                default=False,
                                help='The status of an issue')
@@ -93,9 +89,7 @@ class NewspaperID(Resource):
             abort(404, message=f"No newspaper with ID {paper_id} found")
         return search_result
 
-    # @newspaper_ns.doc(parser=paper_model, description="Update a new newspaper")
     @newspaper_ns.doc(description="Update a new newspaper")
-    # @newspaper_ns.expect(paper_model, validate=True)
     @newspaper_ns.expect(parser, validate=False)  # Expect fields from parser without strict validation
     # marshal_with may get a conflict with jsonify !!!
     @newspaper_ns.marshal_with(paper_model, envelope='newspaper')
@@ -121,7 +115,6 @@ class NewspaperID(Resource):
 
         if not updated:
             abort(400, message=f"No updates have been made")
-            # return jsonify(f"No updates have been made for the newspaper with ID {paper_id}")
 
         return search_result
 
@@ -132,6 +125,8 @@ class NewspaperID(Resource):
             return jsonify(f"Newspaper with ID {paper_id} was not found")
         Agency.get_instance().remove_newspaper(targeted_paper)
         return jsonify(f"Newspaper with ID {paper_id} was removed")
+
+    # TODO: get - stats
 
 
 # Issues Endpoints
@@ -170,3 +165,8 @@ class NewspaperIssueID(Resource):
             abort(404, message=f"No issue with ID {issue_id} found")
         else:
             return search_result
+
+    # TODO: post - release an issue
+    #  post - specify an editor (transmit the editor ID as a parameter)
+    #  post - deliver/'send' to a subscriber
+
