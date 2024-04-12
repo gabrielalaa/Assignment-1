@@ -123,6 +123,8 @@ class Agency(object):
         if newspaper is None:
             raise ValueError(f"A newspaper with ID {paper_id} doesn't exist!")
 
+        # This also handle the situation in which I cannot specify an editor to an issue of another editor! (and
+        # vice versa) - But the error message is a bit unclear now
         issue = self.get_issue(paper_id, issue_id)
         if issue is None:
             raise ValueError(f"A issue with ID {issue_id} doesn't exist!")
