@@ -106,18 +106,6 @@ class Agency(object):
         issue.released = True
         return issue
 
-    # TODO ?
-    # def add_newspaper_to_editor(self, paper_id: int, editor_id: int):
-    #     newspaper = self.get_newspaper(paper_id)
-    #     if newspaper is None:
-    #         raise ValueError(f"A newspaper with ID {paper_id} doesn't exist!")
-    #
-    #     editor = self.get_editor(editor_id)
-    #     if editor is None:
-    #         raise ValueError(f"An editor with ID {editor_id} doesn't exist!")
-    #
-    #     editor.newspapers.append(newspaper)
-
     def specify_editor(self, paper_id, issue_id, editor_id):
         newspaper = self.get_newspaper(paper_id)
         if newspaper is None:
@@ -198,6 +186,23 @@ class Agency(object):
 
     def remove_editor(self, editor: Editor):
         self.editors.remove(editor)
+
+    def add_newspaper_to_editor(self, paper_id: int, editor_id: int):
+        newspaper = self.get_newspaper(paper_id)
+        if newspaper is None:
+            raise ValueError(f"A newspaper with ID {paper_id} doesn't exist!")
+
+        editor = self.get_editor(editor_id)
+        if editor is None:
+            raise ValueError(f"An editor with ID {editor_id} doesn't exist!")
+
+        if newspaper not in editor.newspapers:
+            editor.newspapers.append(newspaper)
+
+    # # When an editor is removed, transfer all issues to another editor of the same newspaper
+    # def transfer_issues(self, editor: Editor):
+    #     for issue in editor.issues:
+    #         newspaper_of_issue = issue.
 
     #  TODO:
     #     def editor_issues(self , editor_id: Union[int, str]) -> list[Issue] | None:
