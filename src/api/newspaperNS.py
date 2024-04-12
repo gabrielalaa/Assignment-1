@@ -154,7 +154,7 @@ class NewspaperIssues(Resource):
             new_issue = Agency.get_instance().add_issue_to_newspaper(paper_id, issue_data)
             # Return the new issue
             return new_issue
-        except ValueError as err:
+        except ValueError:
             newspaper_ns.abort(404, message=f"No newspaper with ID {paper_id} found")
 
 
@@ -225,9 +225,20 @@ class NewspaperIssueEditor(Resource):
                 abort(404, message=message)
 
 
+# TODO:
+@newspaper_ns.route('/<int:paper_id>/issue/<int:issue_id>/deliver')
+class NewspaperIssueDeliver(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('subscriber_id', type=int, required=True, help='The unique identifier of a subscriber')
+
+    @newspaper_ns.doc(description="Send an issue to a subscriber")
+    @newspaper_ns.expect(parser, validate=False) # Expect fields from parser without strict validation
+    # @newspaper_ns.marshal_with(issue_model, envelope='issue')
+    def post(self, paper_id, issue_id):
+        # Get and set the subscriber_id
+        arguments = self.parser.parse_args()
+        subscriber_id = arguments['subscriber_id']
+        pass
 
 
-    # TODO:
-    #  post - specify an editor (transmit the editor ID as a parameter)
-    #  post - deliver/'send' to a subscriber
 
