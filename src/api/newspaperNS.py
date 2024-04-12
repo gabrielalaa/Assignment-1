@@ -129,8 +129,6 @@ class NewspaperID(Resource):
         Agency.get_instance().remove_newspaper(targeted_paper)
         return jsonify(f"Newspaper with ID {paper_id} was removed")
 
-    # TODO: get - stats
-
 
 # Issues Endpoints
 @newspaper_ns.route('/<int:paper_id>/issue')
@@ -241,4 +239,11 @@ class NewspaperIssueDeliver(Resource):
         pass
 
 
-
+# TODO:
+@newspaper_ns.route('/<int:paper_id>/stats')
+class NewspaperStatistics(Resource):
+    @newspaper_ns.doc(description="Information about the specific newspaper")
+    @newspaper_ns.marshal_with(paper_model, envelope='newspaper')
+    def get(self, paper_id):
+        # search_result = Agency.get_instance()
+        pass
