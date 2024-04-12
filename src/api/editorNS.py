@@ -91,4 +91,32 @@ class EditorID(Resource):
         if not targeted_editor:
             return jsonify(f"Editor with ID {editor_id} was not found")
         Agency.get_instance().remove_editor(targeted_editor)
+        # When an editor is removed, transfer all issues to another editor of the same newspaper
+        Agency.get_instance().transfer_issues(targeted_editor)
         return jsonify(f"Editor with ID {editor_id} was removed")
+
+
+# In order to handle the transfer of issues of the same newspaper, I consider adding this:
+@editor_ns.route('/<int:editor_id>/newspapers')
+class EditorNewspapers(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('paper_id', type=int, required=True, help='The unique identifier of a newspaper')
+
+    @editor_ns.doc(description="Assign a newspaper to editor")
+    @editor_ns.expect(parser, validate=True)
+    def post(self, editor_id):
+        arguments = self.parser.parse_args()
+        paper_id = arguments['paper_id']
+
+        try:
+            Agency.get_instance().add_newspaper_to_editor(paper_id, editor_id)
+            return jsonify(f"Newspaper with ID {paper_id} was assigned to editor with ID {editor_id}")
+        except ValueError as err:
+            message = str(err)
+            # The newspaper doesn't exist
+            if "newspaper" in message:
+                abort(404, message=message)
+            else:
+                # The editor doesn't exist
+                abort(404, message=message)
+
