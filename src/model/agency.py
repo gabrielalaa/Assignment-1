@@ -134,7 +134,6 @@ class Agency(object):
 
         return issue
 
-    # TODO:
     def deliver_issue(self, paper_id: int, issue_id: int, subscriber_id: int):
         newspaper = self.get_newspaper(paper_id)
         if newspaper is None:
@@ -148,16 +147,15 @@ class Agency(object):
         if sub is None:
             raise ValueError(f"A subscriber with ID {subscriber_id} doesn't exist!")
 
-        # Not sure ?
         if newspaper not in sub.subscriptions:
-            raise ValueError(f"Subscriber with ID {subscriber_id} is not subscribed to newspaper ID {paper_id}")
+            raise ValueError(f"Subscriber with ID {subscriber_id} is not subscribed to newspaper ID {paper_id}!")
 
-        # Once published they can be delivered !
-        if issue.released:
-            # Record the delivery ?
-            sub.delivered_issues.append(issue)
+        if not issue.released:
+            raise ValueError(f"Issue with ID {issue_id} has not been released yet!")
 
-        # Does it make sense to sense the issue back? Maybe send a confirmation message
+        # Record the delivery in a list
+        sub.delivered_issues.append(issue)
+
         return issue
 
     # # TODO: ?

@@ -199,7 +199,7 @@ class NewspaperIssueEditor(Resource):
     parser.add_argument('editor_id', type=int, required=True, help='The unique identifier of an editor')
 
     @newspaper_ns.doc(description="Specify an editor for an issue")
-    @newspaper_ns.expect(parser, validate=False)  # Expect fields from parser without strict validation
+    @newspaper_ns.expect(parser, validate=True)  # Ensure that editor_id is provided
     @newspaper_ns.marshal_with(issue_model, envelope='issue')
     def post(self, paper_id, issue_id):
         # Get and set the editor_id
@@ -223,20 +223,32 @@ class NewspaperIssueEditor(Resource):
                 abort(404, message=message)
 
 
-# TODO:
 @newspaper_ns.route('/<int:paper_id>/issue/<int:issue_id>/deliver')
 class NewspaperIssueDeliver(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('subscriber_id', type=int, required=True, help='The unique identifier of a subscriber')
 
     @newspaper_ns.doc(description="Send an issue to a subscriber")
-    @newspaper_ns.expect(parser, validate=False) # Expect fields from parser without strict validation
-    # @newspaper_ns.marshal_with(issue_model, envelope='issue')
+    @newspaper_ns.expect(parser, validate=True)
     def post(self, paper_id, issue_id):
         # Get and set the subscriber_id
         arguments = self.parser.parse_args()
         subscriber_id = arguments['subscriber_id']
-        pass
+
+        try:
+            deliver_issue = Agency.get_instance().deliver_issue(paper_id, issue_id, subscriber_id)
+            # Construct the record
+            record = {
+                'issue_id': deliver_issue.issue_id,
+                'release_date': deliver_issue.release_date,
+                'number_of_pages': deliver_issue.number_of_pages,
+                'released': deliver_issue.released,
+                'editor_id': deliver_issue.editor_id,
+                'delivered_to': subscriber_id
+            }
+            return jsonify(record)
+        except ValueError as err:
+            return jsonify({'error': str(err)})
 
 
 # TODO:
