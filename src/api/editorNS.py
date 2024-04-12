@@ -120,3 +120,30 @@ class EditorNewspapers(Resource):
                 # The editor doesn't exist
                 abort(404, message=message)
 
+
+@editor_ns.route('/<int:editor_id>/issues')
+class EditorIssues(Resource):
+    @editor_ns.doc(description="List all newspaper issues that the editor is responsible for")
+    def get(self, editor_id):
+        search_result = Agency.get_instance().editor_issues(editor_id)
+        if search_result is None:
+            abort(404, message=f"No editor with ID {editor_id} found")
+
+        # TypeError: Object of type Issue is not JSON serializable
+        # Format each issue object into a dictionary
+
+        issues = []
+        for issue in search_result:
+            issue_dict = {
+                'issue_id': issue.issue_id,
+                'release_date': issue.release_date,
+                'number_of_pages': issue.number_of_pages,
+                'released': issue.released,
+                'editor_id': issue.editor_id
+            }
+            issues.append(issue_dict)
+
+        if not issues:
+            return jsonify(f"No issues found for editor with ID {editor_id}")
+
+        return jsonify(issues)
