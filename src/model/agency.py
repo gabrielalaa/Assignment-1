@@ -128,6 +128,10 @@ class Agency(object):
         if issue not in editor.issues:
             editor.issues.append(issue)
 
+        # Ensure the newspaper is assigned to the editor if not already
+        if newspaper not in editor.newspapers:
+            editor.newspapers.append(newspaper)
+
         return issue
 
     # TODO:
@@ -187,6 +191,7 @@ class Agency(object):
     def remove_editor(self, editor: Editor):
         self.editors.remove(editor)
 
+    # An editor may be responsible for the content of the newspaper, not just the issue
     def add_newspaper_to_editor(self, paper_id: int, editor_id: int):
         newspaper = self.get_newspaper(paper_id)
         if newspaper is None:
@@ -199,17 +204,29 @@ class Agency(object):
         if newspaper not in editor.newspapers:
             editor.newspapers.append(newspaper)
 
-    # # When an editor is removed, transfer all issues to another editor of the same newspaper
-    # def transfer_issues(self, editor: Editor):
-    #     for issue in editor.issues:
-    #         newspaper_of_issue = issue.
+    # TODO: think about error
+    # When an editor is removed, transfer all issues to another editor of the same newspaper
+    def transfer_issues(self, targeted_editor: Editor):
+        # For each newspaper the editor has
+        for paper in targeted_editor.newspapers:
+            # Create a list of issues to be transferred
+            issue_to_transfer = [issue for issue in paper.issues if issue.editor_id == targeted_editor.editor_id]
 
-    #  TODO:
-    #     def editor_issues(self , editor_id: Union[int, str]) -> list[Issue] | None:
-    #         for editor in self.editors:
-    #             if editor.editor_id == editor_id:
-    #                 return editor.issues
-    #         return None
+            # Find another editor and transfer issues
+            for issue in issue_to_transfer:
+                # # Use a flag to check if there is another editor for the same newspaper
+                # transfer = False
+                for editor in self.editors:
+                    # Find another editor with the same newspaper assigned
+                    if editor.editor_id != targeted_editor.editor_id and paper in editor.newspapers:
+                        # Because I set only one editor to each issue, I assume that each issue has only one editor
+                        # assigned
+                        editor.issues.append(issue)
+                        issue.set_editor(editor.editor_id)
+                        # transfer = True
+                        break  # No need to iterate anymore
+                # if not transfer:
+                #     raise ValueError("No other editor for the same newspaper")
 
     # METHODS for subscriber
     def add_subscriber(self, new_subscriber: Subscriber):

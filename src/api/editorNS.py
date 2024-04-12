@@ -90,9 +90,9 @@ class EditorID(Resource):
         targeted_editor = Agency.get_instance().get_editor(editor_id)
         if not targeted_editor:
             return jsonify(f"Editor with ID {editor_id} was not found")
-        Agency.get_instance().remove_editor(targeted_editor)
         # When an editor is removed, transfer all issues to another editor of the same newspaper
         Agency.get_instance().transfer_issues(targeted_editor)
+        Agency.get_instance().remove_editor(targeted_editor)
         return jsonify(f"Editor with ID {editor_id} was removed")
 
 
