@@ -1,6 +1,7 @@
 from typing import List
 
 from .newspaper import Newspaper
+from .issue import Issue
 
 
 class Subscriber:
@@ -8,6 +9,6 @@ class Subscriber:
         self.subscriber_id = subscriber_id
         self.subscriber_name = name
         self.subscriber_address = address
-        # TODO: The list of newspapers that they are subscribed to
         self.subscriptions: List[Newspaper] = []
-
+        # TODO:
+        self.delivered_issues: List[Issue] = []
