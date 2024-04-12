@@ -52,7 +52,7 @@ class EditorID(Resource):
     parser.add_argument('editor_name', type=str, required=False, help="The name of the editor")
     parser.add_argument('address', type=str, required=False, help="The address of the editor")
 
-    @editor_ns.doc(description="Get a new editor")
+    @editor_ns.doc(description="Get an editor's information")
     @editor_ns.marshal_with(editor_model, envelope='editor')
     def get(self, editor_id):
         search_result = Agency.get_instance().get_editor(editor_id)
@@ -74,7 +74,7 @@ class EditorID(Resource):
 
         updated = False
         if arguments['editor_name'] is not None:
-            search_result.name = arguments['editor_name']
+            search_result.editor_name = arguments['editor_name']
             updated = True
         if arguments['address'] is not None:
             search_result.address = arguments['address']
