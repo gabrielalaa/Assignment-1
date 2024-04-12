@@ -142,7 +142,33 @@ class Agency(object):
 
         return issue
 
-    # # TODO: check if paper_id: int and issue; error handling
+    # TODO:
+    def deliver_issue(self, paper_id: int, issue_id: int, subscriber_id: int):
+        newspaper = self.get_newspaper(paper_id)
+        if newspaper is None:
+            raise ValueError(f"A newspaper with ID {paper_id} doesn't exist!")
+
+        issue = self.get_issue(paper_id, issue_id)
+        if issue is None:
+            raise ValueError(f"A issue with ID {issue_id} doesn't exist!")
+
+        sub = self.get_subscriber(subscriber_id)
+        if sub is None:
+            raise ValueError(f"A subscriber with ID {subscriber_id} doesn't exist!")
+
+        # Not sure ?
+        if newspaper not in sub.subscriptions:
+            raise ValueError(f"Subscriber with ID {subscriber_id} is not subscribed to newspaper ID {paper_id}")
+
+        # Once published they can be delivered !
+        if issue.released:
+            # Record the delivery ?
+            sub.delivered_issues.append(issue)
+
+        # Does it make sense to sense the issue back? Maybe send a confirmation message
+        return issue
+
+    # # TODO: ?
     # def remove_issue_from_newspaper(self, paper_id: Union[int, str], issue_id: int):
     #     newspaper = self.get_newspaper(paper_id)
     #     if newspaper is not None:
@@ -150,7 +176,7 @@ class Agency(object):
     #     else:
     #         pass
     #
-    # # TODO: implement me
+    # # TODO: ?
     # def update_issue_in_newspaper(self, paper_id: Union[int, str], issue_id: int):
     #     pass
 
