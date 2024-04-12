@@ -52,7 +52,7 @@ class SubscriberID(Resource):
     parser.add_argument('subscriber_name', type=str, required=False, help="The name of the subscriber")
     parser.add_argument('subscriber_address', type=str, required=False, help="The address of the subscriber")
 
-    @subscriber_ns.doc(description="Get a new subscriber")
+    @subscriber_ns.doc(description="Get a subscriber's information")
     @subscriber_ns.marshal_with(subscriber_model, envelope='subscriber')
     def get(self, subscriber_id):
         search_result = Agency.get_instance().get_subscriber(subscriber_id)
@@ -63,7 +63,7 @@ class SubscriberID(Resource):
         return search_result
 
     @subscriber_ns.doc(description="Update a new subscriber")
-    @subscriber_ns.expect(parser, validate=False) # Expect fields from parser without strict validation
+    @subscriber_ns.expect(parser, validate=False)  # Expect fields from parser without strict validation
     @subscriber_ns.marshal_with(subscriber_model, envelope='subscriber')
     def post(self, subscriber_id):
         arguments = self.parser.parse_args()
