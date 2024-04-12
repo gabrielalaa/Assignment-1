@@ -187,6 +187,9 @@ class Agency(object):
         return self.editors
 
     def remove_editor(self, editor: Editor):
+        # Be sure that the issue doesn't remain set to this editor
+        for issue in editor.issues:
+            issue.editor_id = None
         self.editors.remove(editor)
 
     # An editor may be responsible for the content of the newspaper, not just the issue
@@ -225,6 +228,13 @@ class Agency(object):
                         break  # No need to iterate anymore
                 # if not transfer:
                 #     raise ValueError("No other editor for the same newspaper")
+
+    def editor_issues(self, editor_id: int) -> Optional[List[Issue]]:
+        editor = self.get_editor(editor_id)
+        if editor is not None:
+            return editor.issues
+        else:
+            return None
 
     # METHODS for subscriber
     def add_subscriber(self, new_subscriber: Subscriber):
