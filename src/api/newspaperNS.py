@@ -82,7 +82,7 @@ class NewspaperID(Resource):
     parser.add_argument('frequency', type=int, required=False, help="Frequency of the newspaper in days")
     parser.add_argument('price', type=float, required=False, help="Monthly price of the newspaper")
 
-    @newspaper_ns.doc(description="Get a new newspaper")
+    @newspaper_ns.doc(description="Get a newspaper's information.")
     @newspaper_ns.marshal_with(paper_model, envelope='newspaper')
     def get(self, paper_id):
         search_result = Agency.get_instance().get_newspaper(paper_id)
