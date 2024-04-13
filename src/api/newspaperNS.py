@@ -1,12 +1,9 @@
-import parser
-
 from flask import jsonify
 # Import abort to handel errors
 from flask_restx import Namespace, reqparse, Resource, fields, abort
 
 from ..model.agency import Agency
 from ..model.newspaper import Newspaper
-from ..model.issue import Issue
 
 # Use a simple generator for ID's
 import random
@@ -51,7 +48,7 @@ class NewspaperAPI(Resource):
         paper_id = random.randint(1, 999)
         # Check if ID already exists
         while any(newspaper.paper_id == paper_id for newspaper in Agency.get_instance().newspapers):
-            paper_id = random.randint(10, 99)
+            paper_id = random.randint(1, 999)
 
         # I was thinking to use uuid module in order to get real unique ID, but I think random is much better in such
         # a project when I care more about the functionality
