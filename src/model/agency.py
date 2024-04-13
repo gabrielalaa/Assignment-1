@@ -1,6 +1,5 @@
 from typing import List, Union, Optional
 
-from . import subscriber
 from .issue import Issue
 from .newspaper import Newspaper
 from .subscriber import Subscriber
