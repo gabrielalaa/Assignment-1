@@ -10,5 +10,6 @@ def create_newspapers(agency: Agency):
     agency.newspapers.extend([paper1, paper2, paper3, paper4])
 
 
+# Populate the agency with data before tests are run
 def populate(agency: Agency):
     create_newspapers(agency)
