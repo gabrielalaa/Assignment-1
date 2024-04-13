@@ -321,3 +321,21 @@ class Agency(object):
             "total_annual_cost": total_annual_cost,
             "details": details
         }
+
+    def missing_issues(self, subscriber_id):
+        sub = self.get_subscriber(subscriber_id)
+        if sub is None:
+            raise ValueError(f"A subscriber with ID {subscriber_id} doesn't exist!")
+
+        # Missing issues are the unreleased ones
+        missing_issues = []
+
+        for paper_id in sub.subscriptions:
+            newspaper = self.get_newspaper(paper_id)
+            if newspaper:
+                # released_issues = {issue.issue_id for issue in newspaper.issues if issue.released}
+                # delivered_issues = {issue.issue_id for issue in sub.delivered_issues}
+                #
+                # #  how many missing issues are ?
+                # missing_issues = released_issues - delivered_issues
+                pass

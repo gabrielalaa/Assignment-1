@@ -122,3 +122,14 @@ class SubscriberStatistics(Resource):
             return jsonify(search_result)
         except ValueError as err:
             return jsonify({'error': str(err)})
+
+
+@subscriber_ns.route('/<int:subscriber_id>/missingissues')
+class SubscriberMissingIssues(Resource):
+    @subscriber_ns.doc(description="Check if there are any undelivered issues of the subscribed newspapers")
+    def get(self, subscriber_id):
+        try:
+            missing_issues = Agency.get_instance().check_missing_issues(subscriber_id)
+            return jsonify(missing_issues)
+        except ValueError as err:
+            return jsonify({'error': str(err)})
