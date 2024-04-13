@@ -43,6 +43,24 @@ class Agency(object):
     def remove_newspaper(self, paper: Newspaper):
         self.newspapers.remove(paper)
 
+    def get_newspaper_stats(self, paper_id):
+        newspaper = self.get_newspaper(paper_id)
+        if newspaper is None:
+            raise ValueError(f"A newspaper with ID {paper_id} doesn't exist!")
+
+        # Count subscribers
+        sub_count = sum(1 for sub in self.subscribers if paper_id in sub.subscriptions)
+
+        # Calculate revenues
+        monthly_revenue = sub_count * newspaper.price
+        annual_revenue = monthly_revenue * 12
+
+        return {
+            "number_of_subscribers": sub_count,
+            "monthly_revenue": monthly_revenue,
+            'annual_revenue': annual_revenue
+        }
+
     # METHODS for issues
     def get_issue(self, paper_id: int, issue_id: int) -> Optional[Issue]:
         newspaper = self.get_newspaper(paper_id)
@@ -266,3 +284,4 @@ class Agency(object):
         else:
             sub.subscriptions.append(paper_id)
             return {"subscriptions": sub.subscriptions, "status": "Subscriber successfully subscribed to this paper!"}
+

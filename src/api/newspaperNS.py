@@ -251,11 +251,14 @@ class NewspaperIssueDeliver(Resource):
             return jsonify({'error': str(err)})
 
 
-# TODO:
 @newspaper_ns.route('/<int:paper_id>/stats')
 class NewspaperStatistics(Resource):
     @newspaper_ns.doc(description="Information about the specific newspaper")
-    @newspaper_ns.marshal_with(paper_model, envelope='newspaper')
     def get(self, paper_id):
-        # search_result = Agency.get_instance()
-        pass
+        try:
+            search_result = Agency.get_instance().get_newspaper_stats(paper_id)
+            return jsonify(search_result)
+        except ValueError as err:
+            return jsonify({'error': str(err)})
+
+
