@@ -223,6 +223,7 @@ class Agency(object):
                         # Because I set only one editor to each issue, I assume that each issue has only one editor
                         # assigned
                         editor.issues.append(issue)
+                        # TODO: the issue.editor_id is not assigned to the new editor_id
                         issue.set_editor(editor.editor_id)
                         # transfer = True
                         break  # No need to iterate anymore
