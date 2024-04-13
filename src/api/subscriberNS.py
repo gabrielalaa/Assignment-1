@@ -93,3 +93,22 @@ class SubscriberID(Resource):
             return jsonify(f"Subscriber with ID {subscriber_id} was not found")
         Agency.get_instance().remove_subscriber(targeted_subscriber)
         return jsonify(f"Subscriber with ID {subscriber_id} was removed")
+
+
+@subscriber_ns.route('/<int:subscriber_id>/subscribe')
+class SubscriberSubscribe(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('paper_id', type=int, required=True, help='The unique identifier of a newspaper')
+
+    @subscriber_ns.doc(description="Subscribe a subscriber to a newspaper")
+    @subscriber_ns.expect(parser, validate=True)  # Ensure that paper_id is provided
+    def post(self, subscriber_id):
+        arguments = self.parser.parse_args()
+        paper_id = arguments['paper_id']
+
+        try:
+            subscribe_action = Agency.get_instance().subscribe(paper_id, subscriber_id)
+            return jsonify(subscribe_action)
+        except ValueError as err:
+            return jsonify({'error': str(err)})
+

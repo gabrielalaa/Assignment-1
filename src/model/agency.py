@@ -251,3 +251,18 @@ class Agency(object):
 
     def remove_subscriber(self, sub: Subscriber):
         self.subscribers.remove(sub)
+
+    def subscribe(self, paper_id, subscriber_id):
+        newspaper = self.get_newspaper(paper_id)
+        if newspaper is None:
+            raise ValueError(f"A newspaper with ID {paper_id} doesn't exist!")
+
+        sub = self.get_subscriber(subscriber_id)
+        if sub is None:
+            raise ValueError(f"A subscriber with ID {subscriber_id} doesn't exist!")
+
+        if paper_id in sub.subscriptions:
+            return {"subscriptions": sub.subscriptions, "status": "Subscriber already subscribed to this paper!"}
+        else:
+            sub.subscriptions.append(paper_id)
+            return {"subscriptions": sub.subscriptions, "status": "Subscriber successfully subscribed to this paper!"}
