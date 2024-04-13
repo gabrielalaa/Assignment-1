@@ -9,6 +9,5 @@ class Subscriber:
         self.subscriber_id = subscriber_id
         self.subscriber_name = name
         self.subscriber_address = address
-        self.subscriptions: List[Newspaper] = []
-        # TODO:
+        self.subscriptions: List[int] = []
         self.delivered_issues: List[Issue] = []
