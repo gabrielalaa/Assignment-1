@@ -327,15 +327,34 @@ class Agency(object):
         if sub is None:
             raise ValueError(f"A subscriber with ID {subscriber_id} doesn't exist!")
 
-        # Missing issues are the unreleased ones
+        # A subscriber can subscribe to a newspaper
+        # And therefore, some issues which are released for that newspaper are not transferred
         missing_issues = []
 
         for paper_id in sub.subscriptions:
             newspaper = self.get_newspaper(paper_id)
             if newspaper:
-                # released_issues = {issue.issue_id for issue in newspaper.issues if issue.released}
-                # delivered_issues = {issue.issue_id for issue in sub.delivered_issues}
-                #
-                # #  how many missing issues are ?
-                # missing_issues = released_issues - delivered_issues
-                pass
+                # Collect released issues based on IDs
+                released_issues = [issue.issue_id for issue in newspaper.issues if issue.released]
+                # Collect delivered issues based on IDs
+                delivered_issues = [issue.issue_id for issue in sub.delivered_issues]
+                # Identify missing issues using set operation
+                missing_issues_ids = set(released_issues) - set(delivered_issues)
+
+                # Create a dictionary for details about missing issues
+                for issue in newspaper.issues:
+                    if issue.issue_id in missing_issues_ids:
+                        dict_details = {
+                            "newspaper_id": newspaper.paper_id,
+                            "newspaper_name": newspaper.name,
+                            "newspaper_frequency": newspaper.frequency,
+                            "newspaper_price": newspaper.price,
+                            "issue_id": issue.issue_id,
+                            "issue_release_date": issue.release_date,
+                            "issue_number_of_pages": issue.number_of_pages,
+                            "issue_editor_id": issue.editor_id,
+                            "status": "Missing"
+                        }
+                        missing_issues.append(dict_details)
+
+        return missing_issues
