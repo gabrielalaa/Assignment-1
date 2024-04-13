@@ -41,6 +41,20 @@ class Agency(object):
         return self.newspapers
 
     def remove_newspaper(self, paper: Newspaper):
+        # Make sure to remove issues and newspaper from editor and subscriber
+        for editor in self.editors:
+            if paper in editor.newspapers:
+                editor.issues = [issue for issue in editor.issues if issue not in paper.issues]
+                editor.newspapers.remove(paper)
+
+        for sub in self.subscribers:
+            if paper.paper_id in sub.subscriptions:
+                sub.delivered_issues = [issue for issue in sub.delivered_issues if issue not in paper.issues]
+                sub.subscriptions.remove(paper.paper_id)
+
+        # Clear all issues from the newspaper
+        paper.issues.clear()
+        # Remove the newspaper
         self.newspapers.remove(paper)
 
     def get_newspaper_stats(self, paper_id):
@@ -92,12 +106,11 @@ class Agency(object):
         issue_data.pop("issue_id", None)
         # Exclude editor_id when creating a new issue!
         issue_data.pop("editor_id", None)
+        # Ensure that 'released' cannot be set as True!
+        issue_data.pop("released", None)
 
         # Generate a unique ID for the issue
         unique_issue_id = self.generate_unique_issue_id(newspaper)
-
-        # Specify the status of the issue
-        issue_data.setdefault("released", False)
 
         # Create a new Issue object using the ID
         new_issue = Issue(issue_id=unique_issue_id, **issue_data)
@@ -165,9 +178,6 @@ class Agency(object):
         if sub is None:
             raise ValueError(f"A subscriber with ID {subscriber_id} doesn't exist!")
 
-        if newspaper not in sub.subscriptions:
-            raise ValueError(f"Subscriber with ID {subscriber_id} is not subscribed to newspaper ID {paper_id}!")
-
         if not issue.released:
             raise ValueError(f"Issue with ID {issue_id} has not been released yet!")
 
@@ -175,18 +185,6 @@ class Agency(object):
         sub.delivered_issues.append(issue)
 
         return issue
-
-    # # TODO: ?
-    # def remove_issue_from_newspaper(self, paper_id: Union[int, str], issue_id: int):
-    #     newspaper = self.get_newspaper(paper_id)
-    #     if newspaper is not None:
-    #         newspaper.issues = [issue for issue in newspaper.issues if issue.issue_id != issue_id]
-    #     else:
-    #         pass
-    #
-    # # TODO: ?
-    # def update_issue_in_newspaper(self, paper_id: Union[int, str], issue_id: int):
-    #     pass
 
     # METHODS for editor
     def add_editor(self, new_editor: Editor):
