@@ -187,9 +187,6 @@ class Agency(object):
         return self.editors
 
     def remove_editor(self, editor: Editor):
-        # Be sure that the issue doesn't remain set to this editor
-        for issue in editor.issues:
-            issue.editor_id = None
         self.editors.remove(editor)
 
     # An editor may be responsible for the content of the newspaper, not just the issue
@@ -205,7 +202,6 @@ class Agency(object):
         if newspaper not in editor.newspapers:
             editor.newspapers.append(newspaper)
 
-    # TODO: think about error
     # When an editor is removed, transfer all issues to another editor of the same newspaper
     def transfer_issues(self, targeted_editor: Editor):
         # For each newspaper the editor has
@@ -215,20 +211,20 @@ class Agency(object):
 
             # Find another editor and transfer issues
             for issue in issue_to_transfer:
-                # # Use a flag to check if there is another editor for the same newspaper
-                # transfer = False
+                # Use a flag to check if the transfer take place
+                transfer = False
                 for editor in self.editors:
                     # Find another editor with the same newspaper assigned
                     if editor.editor_id != targeted_editor.editor_id and paper in editor.newspapers:
                         # Because I set only one editor to each issue, I assume that each issue has only one editor
                         # assigned
                         editor.issues.append(issue)
-                        # TODO: the issue.editor_id is not assigned to the new editor_id
                         issue.set_editor(editor.editor_id)
-                        # transfer = True
+                        transfer = True
                         break  # No need to iterate anymore
-                # if not transfer:
-                #     raise ValueError("No other editor for the same newspaper")
+                if not transfer:
+                    # Be sure that the issue doesn't remain set to this editor
+                    issue.editor_id = None
 
     def editor_issues(self, editor_id: int) -> Optional[List[Issue]]:
         editor = self.get_editor(editor_id)
