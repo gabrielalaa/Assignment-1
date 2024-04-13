@@ -112,3 +112,13 @@ class SubscriberSubscribe(Resource):
         except ValueError as err:
             return jsonify({'error': str(err)})
 
+
+@subscriber_ns.route('/<int:subscriber_id>/stats')
+class SubscriberStatistics(Resource):
+    @subscriber_ns.doc(description="Get statistics of a subscriber")
+    def get(self, subscriber_id):
+        try:
+            search_result = Agency.get_instance().get_subscriber_stats(subscriber_id)
+            return jsonify(search_result)
+        except ValueError as err:
+            return jsonify({'error': str(err)})

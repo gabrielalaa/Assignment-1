@@ -285,3 +285,39 @@ class Agency(object):
             sub.subscriptions.append(paper_id)
             return {"subscriptions": sub.subscriptions, "status": "Subscriber successfully subscribed to this paper!"}
 
+    def get_subscriber_stats(self, subscriber_id):
+        sub = self.get_subscriber(subscriber_id)
+        if sub is None:
+            raise ValueError(f"A subscriber with ID {subscriber_id} doesn't exist!")
+
+        # Extra details
+        total_monthly_cost = 0
+        total_annual_cost = 0
+        details = []
+
+        for paper_id in sub.subscriptions:
+            newspaper = self.get_newspaper(paper_id)
+            if newspaper:
+                monthly_cost = newspaper.price
+                annual_cost = monthly_cost * 12
+                # Use a set for efficiency in checking
+                issue_ids = {issue.issue_id for issue in newspaper.issues}
+                number_of_issues = len([issue for issue in sub.delivered_issues if issue.issue_id in issue_ids])
+
+                details.append({
+                    "newspaper_id": paper_id,
+                    "newspaper_name": newspaper.name,
+                    "monthly_cost": monthly_cost,
+                    "annual_cost": annual_cost,
+                    "number_of_issues": number_of_issues
+                })
+
+                total_monthly_cost += monthly_cost
+                total_annual_cost += annual_cost
+
+        return {
+            "number_of_subscriptions": len(sub.subscriptions),
+            "total_monthly_cost": total_monthly_cost,
+            "total_annual_cost": total_annual_cost,
+            "details": details
+        }
