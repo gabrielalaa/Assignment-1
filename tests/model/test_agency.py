@@ -209,11 +209,6 @@ def test_get_issues(agency):
     assert issues[1].number_of_pages == 10
 
 
-# TODO ?
-def test_generate_unique_issues_id(agency):
-    pass
-
-
 def test_add_issue_to_newspaper(agency):
     new_paper = Newspaper(paper_id=999,
                           name="Simpsons Comic",
@@ -291,6 +286,7 @@ def test_specify_editor(agency):
     issue = agency.specify_editor(new_paper.paper_id, new_issue.issue_id, new_editor.editor_id)
     assert issue.editor_id == new_editor.editor_id
 
+    # Handle errors
     with pytest.raises(ValueError,
                        match="A newspaper with ID 99999 doesn't exist!"):
         agency.specify_editor(99999, new_issue.issue_id, new_editor.editor_id)
@@ -304,24 +300,64 @@ def test_specify_editor(agency):
         agency.specify_editor(new_paper.paper_id, new_issue.issue_id, 2)
 
 
-# TODO:
 def test_deliver_issue(agency):
-    pass
+    new_paper = Newspaper(paper_id=999,
+                          name="Simpsons Comic",
+                          frequency=7,
+                          price=1)
+    agency.add_newspaper(new_paper)
+    issue_data = {"release_date": "14.04.2024",
+                  "number_of_pages": 10}
+    new_issue = agency.add_issue_to_newspaper(new_paper.paper_id, issue_data)
+    # Add a subscriber
 
-    #     # Add an editor
-    #     new_editor = Editor(editor_id=10000,
-    #                         editor_name="Ana",
-    #                         address="San Francisco")
-    #     # Increase the list of editors the agency has in the constructor
-    #     agency.editors.append(new_editor)
-    #     # Add the newspaper in editor's list
-    #     new_editor.newspapers.append(new_paper)
-    #
-    #     # Add a subscriber
-    #     new_subscriber = Subscriber(subscriber_id=100001,
-    #                                 name="Gabriela",
-    #                                 address="San Francisco")
-    #     # Increase the list of subscribers the agency has in the constructor
-    #     agency.subscribers.append(new_subscriber)
-    #     # Add the newspaper ID in subscriber's list
-    #     new_subscriber.subscriptions.append(new_paper.paper_id)
+    # Release the issue first
+    new_issue.released = True
+
+    new_subscriber = Subscriber(subscriber_id=100001,
+                                name="Gabriela",
+                                address="San Francisco")
+    # Increase the list of subscribers the agency has in the constructor
+    agency.subscribers.append(new_subscriber)
+
+    # Success case:
+    issue = agency.deliver_issue(new_paper.paper_id, new_issue.issue_id, new_subscriber.subscriber_id)
+    assert issue in new_subscriber.delivered_issues
+
+    # Handle errors
+    with pytest.raises(ValueError,
+                       match="A newspaper with ID 99999 doesn't exist!"):
+        agency.deliver_issue(99999, new_issue.issue_id, new_subscriber.subscriber_id)
+
+    with pytest.raises(ValueError,
+                       match="An issue with ID 1 doesn't exist!"):
+        agency.deliver_issue(new_paper.paper_id, 1, new_subscriber.subscriber_id)
+
+    with pytest.raises(ValueError,
+                       match="A subscriber with ID 2 doesn't exist!"):
+        agency.deliver_issue(new_paper.paper_id, new_issue.issue_id, 2)
+
+
+def test_deliver_unreleased_issue(agency):
+    new_paper = Newspaper(paper_id=999,
+                          name="Simpsons Comic",
+                          frequency=7,
+                          price=1)
+    agency.add_newspaper(new_paper)
+    issue_data = {"release_date": "14.04.2024",
+                  "number_of_pages": 10}
+    new_issue = agency.add_issue_to_newspaper(new_paper.paper_id, issue_data)
+    # Do not release the issue
+
+    # Add a subscriber
+    new_subscriber = Subscriber(subscriber_id=100001,
+                                name="Gabriela",
+                                address="San Francisco")
+    # Increase the list of subscribers the agency has in the constructor
+    agency.subscribers.append(new_subscriber)
+
+    with pytest.raises(ValueError,
+                       match=f"Issue with ID {new_issue.issue_id} has not been released yet!"):
+        agency.deliver_issue(new_paper.paper_id, new_issue.issue_id, new_subscriber.subscriber_id)
+
+
