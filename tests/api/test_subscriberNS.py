@@ -91,6 +91,7 @@ def test_update_subscriber(client, agency):
     response = client.post("/subscriber/1")
     assert response.status_code == 404
 
+
 def test_no_update_subscriber(client, agency):
     # Add the subscriber
     new_sub_response = client.post("/subscriber/",
@@ -110,6 +111,7 @@ def test_no_update_subscriber(client, agency):
     parsed = update_response.get_json()
 
     assert "No updates have been made" == parsed["message"]
+
 
 def test_delete_subscriber(client, agency):
     # Add the subscriber
@@ -133,3 +135,87 @@ def test_delete_subscriber(client, agency):
     # Try to delete the same subscriber
     delete_response = client.delete(f"/newspaper/{sub_response['subscriber_id']}")
     assert "was not found" in delete_response.get_data(as_text=True)
+
+
+def test_subscribe(client, agency):
+    # Add the subscriber
+    new_sub_response = client.post("/subscriber/",
+                                   json={
+                                       "subscriber_name": "Gabriela",
+                                       "subscriber_address": "San Francisco"
+                                   })
+    parsed = new_sub_response.get_json()
+    sub_response = parsed["subscriber"]
+    sub_id = sub_response["subscriber_id"]
+
+    # Add the newspaper
+    new_paper_response = client.post("/newspaper/",
+                                     json={
+                                         "name": "Simpsons Comic",
+                                         "frequency": 7,
+                                         "price": 3.14
+                                     })
+
+    parsed = new_paper_response.get_json()
+    paper_response = parsed["newspaper"]
+    paper_id = paper_response["paper_id"]
+
+    # act
+    response = client.post(f'/subscriber/{sub_id}/subscribe',
+                           json={"paper_id": paper_id})
+
+    assert response.status_code == 200
+    assert "success" in response.get_data(as_text=True)
+
+    # Try to subscribe to a non-existing-newspaper
+    response = client.post(f'/subscriber/{sub_id}/subscribe',
+                           json={"paper_id": 101010})
+    assert "A newspaper with ID 101010 doesn't exist!" in response.get_data(as_text=True)
+
+    # Try to subscribe a non-existent subscriber
+    response = client.post(f'/subscriber/1/subscribe',
+                           json={"paper_id": paper_id})
+    assert "A subscriber with ID 1 doesn't exist!" in response.get_data(as_text=True)
+
+
+def test_subscriber_statistics(client, agency):
+    # Add the subscriber
+    new_sub_response = client.post("/subscriber/",
+                                   json={
+                                       "subscriber_name": "Gabriela",
+                                       "subscriber_address": "San Francisco"
+                                   })
+    parsed = new_sub_response.get_json()
+    sub_response = parsed["subscriber"]
+    sub_id = sub_response["subscriber_id"]
+
+    # act
+    response = client.get(f'/subscriber/{sub_id}/stats')
+    assert response.status_code == 200
+    # Because my report is in a dictionary format check if:
+    assert isinstance(response.get_json(), dict)
+
+    # Try with a non_existent subscriber
+    response = client.get('/subscriber/1/stats')
+    assert "A subscriber with ID 1 doesn't exist!" in response.get_data(as_text=True)
+
+
+def test_subscriber_missing_issues(client, agency):
+    # Add the subscriber
+    new_sub_response = client.post("/subscriber/",
+                                   json={
+                                       "subscriber_name": "Gabriela",
+                                       "subscriber_address": "San Francisco"
+                                   })
+    parsed = new_sub_response.get_json()
+    sub_response = parsed["subscriber"]
+    sub_id = sub_response["subscriber_id"]
+
+    # act - simulate that subscriber has missing issues
+    response = client.get(f'/subscriber/{sub_id}/missingissues')
+    assert response.status_code == 200
+
+    # Try with a non_existent subscriber
+    response = client.get('/subscriber/1/missingissues')
+    assert "A subscriber with ID 1 doesn't exist!" in response.get_data(as_text=True)
+
