@@ -361,3 +361,78 @@ def test_deliver_unreleased_issue(agency):
         agency.deliver_issue(new_paper.paper_id, new_issue.issue_id, new_subscriber.subscriber_id)
 
 
+# Tests for newspaper
+
+def test_add_editor(agency):
+    before = len(agency.editors)
+    new_editor = Editor(editor_id=10000,
+                        editor_name="Ana",
+                        address="San Francisco")
+    agency.add_editor(new_editor)
+    assert len(agency.all_editor()) == before + 1
+
+
+def test_add_editor_same_id_should_raise_error(agency):
+    new_editor = Editor(editor_id=10000,
+                        editor_name="Ana",
+                        address="San Francisco")
+    # first adding of newspaper should be okay
+    agency.add_editor(new_editor)
+
+    new_editor2 = Editor(editor_id=10000,
+                         editor_name="Ana",
+                         address="San Francisco")
+    with pytest.raises(ValueError,
+                       match="An editor with ID 10000 already exists!"):
+        agency.add_editor(new_editor2)
+
+
+def test_get_editor(agency):
+    new_editor = Editor(editor_id=10000,
+                        editor_name="Ana",
+                        address="San Francisco")
+    agency.add_editor(new_editor)
+
+    editor = agency.get_editor(new_editor.editor_id)
+    assert editor == new_editor
+    assert editor.editor_name == "Ana"
+    assert editor.address == "San Francisco"
+
+
+def test_get_editor_as_none(agency):
+    editor = agency.get_editor(1)
+    assert editor is None
+
+
+def test_all_editor(agency):
+    before = len(agency.editors)
+    # Add some editors
+    new_editor = Editor(editor_id=10000,
+                        editor_name="Ana",
+                        address="San Francisco")
+    agency.add_editor(new_editor)
+    new_editor2 = Editor(editor_id=10001,
+                         editor_name="Ana",
+                         address="San Francisco")
+    agency.add_editor(new_editor2)
+
+    editors = agency.all_editor()
+
+    assert len(editors) == before + 2
+
+
+def test_remove_editor(agency):
+    # Save the length
+    before = len(agency.editors)
+    # Add an editor
+    new_editor = Editor(editor_id=10000,
+                        editor_name="Ana",
+                        address="San Francisco")
+    agency.add_editor(new_editor)
+
+    agency.remove_editor(new_editor)
+    # After removing the editor the current length remains the same as before
+    assert len(agency.editors) == before
+    assert new_editor not in agency.editors
+
+
