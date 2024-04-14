@@ -147,3 +147,84 @@ def test_delete_newspaper(client, agency):
     # Try to delete the same newspaper
     delete_response = client.delete(f"/newspaper/{paper_response['paper_id']}")
     assert "was not found" in delete_response.get_data(as_text=True)
+
+
+def test_get_issues_should_list_all_issues(client, agency):
+    # Create a newspaper
+    new_paper_response = client.post("/newspaper/",
+                                     json={
+                                         "name": "Simpsons Comic",
+                                         "frequency": 7,
+                                         "price": 3.14
+                                     })
+    parsed = new_paper_response.get_json()
+    paper_response = parsed["newspaper"]
+
+    # Add issues to the newspaper
+    client.post(f"/newspaper/{paper_response['paper_id']}/issue",
+                json={
+                    "release_date": "14.04.2024",
+                    "number_of_pages": 10,
+                    "released": False
+                })
+    client.post(f"/newspaper/{paper_response['paper_id']}/issue",
+                json={
+                    "release_date": "14.03.2024",
+                    "number_of_pages": 5,
+                    "released": False
+                })
+
+    # send request
+    response = client.get(f"/newspaper/{paper_response['paper_id']}/issue")
+
+    # test status code
+    assert response.status_code == 200
+
+    # parse response and check that the correct data is here
+    parsed = response.get_json()
+    assert len(parsed["issue"]) == 2
+
+    # Try for a non-existing newspaper
+    response = client.get("/newspaper/9999/issue")
+    assert response.status_code == 404
+
+
+def test_add_issue(client, agency):
+    # Create a newspaper
+    new_paper_response = client.post("/newspaper/",
+                                     json={
+                                         "name": "Simpsons Comic",
+                                         "frequency": 7,
+                                         "price": 3.14
+                                     })
+    parsed = new_paper_response.get_json()
+    paper_response = parsed["newspaper"]
+
+    # act
+    response = client.post(f"/newspaper/{paper_response['paper_id']}/issue",
+                           json={
+                               "release_date": "14.04.2024",
+                               "number_of_pages": 10,
+                               "released": False
+                           })
+
+    # test status code
+    assert response.status_code == 200
+
+    # parse response and check that the correct data is here
+    parsed = response.get_json()
+    issue_response = parsed["issue"]
+    assert issue_response["release_date"] == "14.04.2024"
+    assert issue_response["number_of_pages"] == 10
+    assert not issue_response["released"]
+
+    # Try for a non-existing newspaper
+    response = client.post(f"/newspaper/9999/issue",
+                           json={
+                               "release_date": "14.04.2024",
+                               "number_of_pages": 10,
+                               "released": False
+                           })
+
+    assert response.status_code == 404
+
