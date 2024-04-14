@@ -362,7 +362,6 @@ def test_deliver_unreleased_issue(agency):
 
 
 # Tests for newspaper
-
 def test_add_editor(agency):
     before = len(agency.editors)
     new_editor = Editor(editor_id=10000,
@@ -435,4 +434,115 @@ def test_remove_editor(agency):
     assert len(agency.editors) == before
     assert new_editor not in agency.editors
 
+
+# Add newspaper to editor with error handling
+def test_add_newspaper_to_editor(agency):
+    new_paper = Newspaper(paper_id=999,
+                          name="Simpsons Comic",
+                          frequency=7,
+                          price=1)
+    agency.add_newspaper(new_paper)
+
+    new_editor = Editor(editor_id=10000,
+                        editor_name="Ana",
+                        address="San Francisco")
+    agency.add_editor(new_editor)
+
+    agency.add_newspaper_to_editor(new_paper.paper_id, new_editor.editor_id)
+    # Success case
+    assert new_paper in new_editor.newspapers
+
+    # Handle errors
+    with pytest.raises(ValueError,
+                       match="A newspaper with ID 1000 doesn't exist!"):
+        agency.add_newspaper_to_editor(1000, new_editor.editor_id)
+
+    with pytest.raises(ValueError,
+                       match="An editor with ID 1 doesn't exist!"):
+        agency.add_newspaper_to_editor(new_paper.paper_id, 1)
+
+
+def test_transfer_issues(agency):
+    new_paper = Newspaper(paper_id=999,
+                          name="Simpsons Comic",
+                          frequency=7,
+                          price=1)
+    agency.add_newspaper(new_paper)
+
+    new_editor = Editor(editor_id=10000,
+                        editor_name="Ana",
+                        address="San Francisco")
+    agency.add_editor(new_editor)
+    new_editor2 = Editor(editor_id=10001,
+                         editor_name="Ana",
+                         address="San Francisco")
+    agency.add_editor(new_editor2)
+
+    new_issue = Issue(issue_id=1000,
+                      release_date="14.04.2024",
+                      number_of_pages=10,
+                      released=False,
+                      editor_id=new_editor.editor_id)
+    new_paper.issues.append(new_issue)
+
+    # Assign the newspaper and the issue to the first editor
+    new_editor.newspapers.append(new_paper)
+    new_editor.issues.append(new_issue)
+
+    # Assign the newspaper to the second one, simulate his existence
+    new_editor2.newspapers.append(new_paper)
+
+    # After removing the first editor, the second one should receive the issue because the newspaper was assigned to him
+    agency.transfer_issues(new_editor)
+    assert new_issue in new_editor2.issues
+
+
+def test_transfer_issues_no_other_editor(agency):
+    new_paper = Newspaper(paper_id=999,
+                          name="Simpsons Comic",
+                          frequency=7,
+                          price=1)
+    agency.add_newspaper(new_paper)
+
+    new_editor = Editor(editor_id=10000,
+                        editor_name="Ana",
+                        address="San Francisco")
+    agency.add_editor(new_editor)
+
+    new_issue = Issue(issue_id=1000,
+                      release_date="14.04.2024",
+                      number_of_pages=10,
+                      released=True,
+                      editor_id=new_editor.editor_id)
+    new_paper.issues.append(new_issue)
+
+    new_editor.newspapers.append(new_paper)
+    new_editor.issues.append(new_issue)
+
+    # When removing the editor from the system and there is no other editor assigned to the same newspaper,
+    # the issue is no longer assigned to someone else
+    agency.transfer_issues(new_editor)
+    assert new_issue.editor_id is None
+
+
+def test_editor_issues(agency):
+    new_editor = Editor(editor_id=10000,
+                        editor_name="Ana",
+                        address="San Francisco")
+    agency.add_editor(new_editor)
+
+    new_issue = Issue(issue_id=1000,
+                      release_date="14.04.2024",
+                      number_of_pages=10,
+                      released=False,
+                      editor_id=new_editor.editor_id)
+    new_editor.issues.append(new_issue)
+    issues = agency.editor_issues(new_editor.editor_id)
+    assert issues == [new_issue]
+    assert new_issue in issues
+
+
+def test_editor_issues_no_editor_found(agency):
+    issues = agency.editor_issues(2000)
+    assert issues is None
 
