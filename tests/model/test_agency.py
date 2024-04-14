@@ -361,7 +361,7 @@ def test_deliver_unreleased_issue(agency):
         agency.deliver_issue(new_paper.paper_id, new_issue.issue_id, new_subscriber.subscriber_id)
 
 
-# Tests for newspaper
+# Tests for editor
 def test_add_editor(agency):
     before = len(agency.editors)
     new_editor = Editor(editor_id=10000,
@@ -375,7 +375,7 @@ def test_add_editor_same_id_should_raise_error(agency):
     new_editor = Editor(editor_id=10000,
                         editor_name="Ana",
                         address="San Francisco")
-    # first adding of newspaper should be okay
+    # first adding of editor should be okay
     agency.add_editor(new_editor)
 
     new_editor2 = Editor(editor_id=10000,
@@ -546,3 +546,74 @@ def test_editor_issues_no_editor_found(agency):
     issues = agency.editor_issues(2000)
     assert issues is None
 
+
+# Tests for subscriber
+def test_add_subscriber(agency):
+    before = len(agency.subscribers)
+    new_subscriber = Subscriber(subscriber_id=100001,
+                                name="Gabriela",
+                                address="San Francisco")
+    agency.add_subscriber(new_subscriber)
+    assert len(agency.subscribers) == before + 1
+
+
+def test_add_subscriber_same_id_should_raise_error(agency):
+    new_subscriber = Subscriber(subscriber_id=100001,
+                                name="Gabriela",
+                                address="San Francisco")
+    # first adding of subscriber should be okay
+    agency.add_subscriber(new_subscriber)
+    new_subscriber2 = Subscriber(subscriber_id=100001,
+                                 name="Carla",
+                                 address="San Francisco")
+    with pytest.raises(ValueError,
+                       match="A subscriber with ID 100001 already exists!"):
+        agency.add_subscriber(new_subscriber2)
+
+
+def test_get_subscriber(agency):
+    new_subscriber = Subscriber(subscriber_id=100001,
+                                name="Gabriela",
+                                address="San Francisco")
+    agency.add_subscriber(new_subscriber)
+
+    subscriber = agency.get_subscriber(new_subscriber.subscriber_id)
+    assert subscriber == new_subscriber
+    assert subscriber.subscriber_name == "Gabriela"
+    assert subscriber.subscriber_address == "San Francisco"
+
+
+def test_get_subscriber_as_none(agency):
+    subscriber = agency.get_subscriber(1)
+    assert subscriber is None
+
+
+def test_all_subscribers(agency):
+    before = len(agency.subscribers)
+    # Add some subscribers
+    new_subscriber = Subscriber(subscriber_id=100001,
+                                name="Gabriela",
+                                address="San Francisco")
+    agency.add_subscriber(new_subscriber)
+    new_subscriber2 = Subscriber(subscriber_id=100002,
+                                 name="Carla",
+                                 address="San Francisco")
+    agency.add_subscriber(new_subscriber2)
+
+    subscribers = agency.all_subscribers()
+    assert len(subscribers) == before + 2
+
+
+def test_remove_subscriber(agency):
+    # Save the length
+    before = len(agency.subscribers)
+    # Add a subscriber
+    new_subscriber = Subscriber(subscriber_id=100001,
+                                name="Gabriela",
+                                address="San Francisco")
+    agency.add_subscriber(new_subscriber)
+
+    agency.remove_subscriber(new_subscriber)
+    # After removing the subscriber the current length remains the same as before
+    assert len(agency.subscribers) == before
+    assert new_subscriber not in agency.subscribers
