@@ -617,3 +617,96 @@ def test_remove_subscriber(agency):
     # After removing the subscriber the current length remains the same as before
     assert len(agency.subscribers) == before
     assert new_subscriber not in agency.subscribers
+
+
+# Subscribe with error handling
+def test_subscribe(agency):
+    new_paper = Newspaper(paper_id=999,
+                          name="Simpsons Comic",
+                          frequency=7,
+                          price=1)
+    agency.add_newspaper(new_paper)
+
+    new_subscriber = Subscriber(subscriber_id=100001,
+                                name="Gabriela",
+                                address="San Francisco")
+    agency.add_subscriber(new_subscriber)
+
+    sub = agency.subscribe(new_paper.paper_id, new_subscriber.subscriber_id)
+    assert new_paper.paper_id in new_subscriber.subscriptions
+
+    # Handle errors
+    with pytest.raises(ValueError,
+                       match="A newspaper with ID 1000 doesn't exist!"):
+        agency.subscribe(1000, new_subscriber.subscriber_id)
+
+    with pytest.raises(ValueError,
+                       match="A subscriber with ID 1 doesn't exist!"):
+        agency.subscribe(new_paper.paper_id, 1)
+
+
+def test_subscribe_already_subscribed(agency):
+    new_paper = Newspaper(paper_id=995,
+                          name="Simpsons Comic",
+                          frequency=7,
+                          price=1)
+    agency.add_newspaper(new_paper)
+    new_subscriber = Subscriber(subscriber_id=100001,
+                                name="Gabriela",
+                                address="San Francisco")
+    agency.add_subscriber(new_subscriber)
+    # First subscription
+    agency.subscribe(new_paper.paper_id, new_subscriber.subscriber_id)
+
+    sub = agency.subscribe(new_paper.paper_id, new_subscriber.subscriber_id)
+    assert "Subscriber already subscribed to this paper!" in sub["status"]
+
+
+# Get subscriber stats with error handling
+def test_get_subscriber_stats(agency):
+    new_paper = Newspaper(paper_id=998,
+                          name="Simpsons Comic",
+                          frequency=7,
+                          price=1)
+    agency.add_newspaper(new_paper)
+    new_subscriber = Subscriber(subscriber_id=100001,
+                                name="Gabriela",
+                                address="San Francisco")
+    agency.add_subscriber(new_subscriber)
+    agency.subscribe(new_paper.paper_id, new_subscriber.subscriber_id)
+
+    statistics = agency.get_subscriber_stats(new_subscriber.subscriber_id)
+    assert statistics["number_of_subscriptions"] == 1
+    assert statistics["total_monthly_cost"] == 1
+    assert statistics["total_annual_cost"] == 12
+    assert len(statistics["details"]) == 1
+
+    # Handle error
+    with pytest.raises(ValueError,
+                       match="A subscriber with ID 1 doesn't exist!"):
+        agency.get_subscriber_stats(1)
+
+
+def test_missing_issues(agency):
+    new_paper = Newspaper(paper_id=999,
+                          name="Simpsons Comic",
+                          frequency=7,
+                          price=1)
+    agency.add_newspaper(new_paper)
+    new_subscriber = Subscriber(subscriber_id=100001,
+                                name="Gabriela",
+                                address="San Francisco")
+    agency.add_subscriber(new_subscriber)
+    # Make the subscription
+    agency.subscribe(new_paper.paper_id, new_subscriber.subscriber_id)
+
+    issue_data = {"release_date": "14.04.2024",
+                  "number_of_pages": 10}
+    new_issue = agency.add_issue_to_newspaper(new_paper.paper_id, issue_data)
+
+    # Release the issue
+    new_issue.released = True
+
+    # Not delivered yet
+    missing = agency.missing_issues(new_subscriber.subscriber_id)
+    assert len(missing) == 1
