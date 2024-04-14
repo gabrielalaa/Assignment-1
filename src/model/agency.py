@@ -171,7 +171,7 @@ class Agency(object):
 
         issue = self.get_issue(paper_id, issue_id)
         if issue is None:
-            raise ValueError(f"A issue with ID {issue_id} doesn't exist!")
+            raise ValueError(f"An issue with ID {issue_id} doesn't exist!")
 
         sub = self.get_subscriber(subscriber_id)
         if sub is None:
