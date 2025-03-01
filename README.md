@@ -1,7 +1,15 @@
 # Assignment 1
-## Deadline: <span style="color:red;">14.04.2024, 23:00</span>
+## The deadline was: <span style="color:red;">14.04.2024, 23:00</span>
 
 --- 
+
+## Professors' Documentation  
+
+The following file was created by my professors. They provided all the necessary details in order to build the project.  
+
+**Professors**: Dr. Dhungana & Dr. Klikovits  
+
+---
 
 # PaperBack: A Newspaper Subscription Management Software
 
@@ -92,17 +100,6 @@ A few examples are provided in the [`src`](./src) and [`test`](./test) folders t
 | `/subscriber/<subscriber_id>/stats`              | `GET`       | Get the number of newspaper subscriptions and the monthly and annual cost, as well as the number of issues that the subscriber received for each paper. |
 | `/subscriber/<subscriber_id>/missingissues`      | `GET`       | Check if there are any undelivered issues of the subscribed newspapers.                                                                                 |
 
-
-### Submission
-Submission of the project must be done through a Github Repository.
-Create your own repository and upload your code to your private repository before the deadline. 
-Add [@deepak-dhungana](https://github.com/deepak-dhungana) and [@stklik](https://github.com/stklik) as collaborators to your repository. 
-
-**Submit the URL of your repository via MS Teams.**
-
-In order to create a new Github account, visit https://github.fhkre.ms and login with your IMC FH Krems account.
-
-
 ---
 ## Technical Hints
 
@@ -144,12 +141,3 @@ pytest
 
 Note, that your `print` statements will not be visible, 
 unless you add the `-s` argument to the call, i.e. `pytest -s`.
-
-
-## Contribute
-
-Should you discover any problems in the code or have suggestions, 
-please leave a Github issue and document your findings.
-
-If you have a fix for a problem, feel free to leave a Pull Request. 
-([Helpful Docs](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request))
